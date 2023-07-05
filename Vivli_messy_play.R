@@ -1,9 +1,13 @@
-# script for playng around with ATLAS
+# script for playing around with ATLAS
 library(data.table)
 library(ggplot2)
 library(scales)
+library(tidyverse)
+library(here)
+
 # read in the data
-atlas <- read.csv("~/Desktop/atlas_input.csv")
+#atlas <- read.csv("~/Desktop/atlas_input.csv")
+atlas <- read.csv("data/Atlas_Reuse_Data.csv")
 atlas <- data.table(atlas)
 
 target_drug <- "Moxifloxacin"

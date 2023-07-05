@@ -1,11 +1,12 @@
-# Vivli initial cleaning and screeing for interesting bugs
+# Vivli initial cleaning and screening for interesting bugs
 library(data.table);library(ggplot2);library(cowplot)
 
 # SPECIFY What characteristic to look at. (Note: Must match column name)
 characteristic <- "Source"#"Age.Group"
 
 # read in the data
-atlas <- read.csv("~/Desktop/atlas_input.csv")
+#atlas <- read.csv("~/Desktop/atlas_input.csv")
+atlas <- 
 atlas <- data.table(atlas)
 
 # function to replace the greater than etc. symbols across the datatable
