@@ -215,3 +215,6 @@ head(full_data)
 full_data$antibiotic <- tolower(full_data$antibiotic)
 abx <- unique(full_data$antibiotic) # remove those wtih "_mic"? which database do they come from? 
 
+#### output
+write.csv(full_data, "data/full_data.csv")
+
