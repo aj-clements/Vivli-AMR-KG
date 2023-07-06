@@ -33,11 +33,14 @@ unique(atlas$`Quinupristin dalfopristin`)
 atlas$`Quinupristin dalfopristin` <- as.character(atlas$`Quinupristin dalfopristin`)
 
 # Pivot longer to explore ranges in MIC
-atlas_clean <- atlas %>% select(-c("Gatifloxacin", "Gatifloxacin_I","Tetracycline")) %>% pivot_longer(cols = `Amikacin`:`GIM`, values_to = "mic", names_to = "antibiotic") %>% 
-  filter(!is.na(mic))
+atlas_clean <- atlas %>% select(-c("Gatifloxacin", "Gatifloxacin_I","Tetracycline")) %>% 
+  pivot_longer(cols = `Amikacin`:`GIM`, values_to = "mic", names_to = "antibiotic") %>% 
+  filter(!is.na(mic)) %>% mutate(data = "atls")
 
 unique(atlas_clean$mic)
-
+colnames(atlas_clean) <- tolower(colnames(atlas_clean))
+atlas_clean <- rename(atlas_clean, "organism" = "species")
+atlas_clean <- rename(atlas_clean, "age" = "age group")
 
 ###### (2) DREAM: Mtb 
 dream <- readxl::read_excel("data/BEDAQUILINE DREAM DATASET FOR VIVLI - 06-06-2022.xlsx")
@@ -60,11 +63,16 @@ table(gsk$GENDER)
 # Pivot longer to explore ranges in MIC
 gsk_clean <- gsk %>% #select(-c("Gatifloxacin", "Gatifloxacin_I","Tetracycline")) %>% 
   pivot_longer(cols = `AMOXICILLIN`:`TRIMETHOPRIM_SULFA`, values_to = "mic", names_to = "antibiotic") %>% 
-  filter(!is.na(mic))
+  filter(!is.na(mic)) %>% mutate(data = "gsk8")
 
 unique(gsk_clean$mic)
+colnames(gsk_clean) <- tolower(colnames(gsk_clean))
+gsk_clean <- rename(gsk_clean, "source" = "bodylocation")
+gsk_clean <- rename(gsk_clean, "year" = "yearcollected")
+gsk_clean <- rename(gsk_clean, "organism" = "organismname")
 
-###### Omadacycline
+
+###### (4) Omadacycline
 oma <- readxl::read_excel("data/Omadacycline_2014_to_2022_Surveillance_data.xlsx")
 colnames(oma) # Age and Gender in there, alongside 
 head(oma)
@@ -84,19 +92,21 @@ unique(oma$Ceftriaxone)
 unique(oma[,12])
 unique(oma$Ampicillin)
 unique(oma$Penicillin)
-# Some are all NA: remove
-unique(oma$Gatifloxacin_I)
-# Some are doubles: make characters for now
-unique(oma$`Quinupristin dalfopristin`)
-oma$`Quinupristin dalfopristin` <- as.character(oma$`Quinupristin dalfopristin`)
 
 # Pivot longer to explore ranges in MIC
 oma_clean <- oma %>% select(-c("Oxacillin","Ceftaroline","Ceftriaxone","Amoxicillin-\r\nclavulanic acid","Erythromycin","Clindamycin","Linezolid","Daptomycin",
-                               "Vancomycin","Teicoplanin","Ampicillin","Azithromycin","Aztreonam","Ceftazidime","Colistin","Moxifloxacin","Penicillin")) %>% pivot_longer(cols = `Omadacycline`:`Trimethoprim-sulfamethoxazole`, values_to = "mic", names_to = "antibiotic")
+                               "Vancomycin","Teicoplanin","Ampicillin","Azithromycin","Aztreonam","Ceftazidime","Colistin","Moxifloxacin","Penicillin")) %>% pivot_longer(cols = `Omadacycline`:`Trimethoprim-sulfamethoxazole`, values_to = "mic", names_to = "antibiotic") %>%
+  filter(!is.na(mic)) %>% mutate(data = "omad") %>%
+  filter(Age < 120) # some odd year entries = birth date? 
 
 unique(oma_clean$mic)
+colnames(oma_clean) <- tolower(colnames(oma_clean))
+oma_clean <- rename(oma_clean, "source" = "infection source")
+oma_clean <- rename(oma_clean, "year" = "study year")
 
-###### SIDERO
+
+
+###### (5) SIDERO
 sidero <- readxl::read_excel("data/Updated_Shionogi Five year SIDERO-WT Surveillance data(without strain number)_Vivli_220409.xlsx")
 colnames(sidero) # No age and gender. Country, body location. 
 head(sidero)
@@ -115,11 +125,17 @@ sidero$`Ceftolozane/ Tazobactam`<- as.character(sidero$`Ceftolozane/ Tazobactam`
 sidero$Cefepime<- as.character(sidero$Cefepime) # make characters to harmonise for now
 
 # Pivot longer to explore ranges in MIC
-sidero_clean <- sidero %>% pivot_longer(cols = `Cefiderocol`:`Imipenem/ Relebactam`, values_to = "mic", names_to = "antibiotic")
+sidero_clean <- sidero %>% pivot_longer(cols = `Cefiderocol`:`Imipenem/ Relebactam`, values_to = "mic", names_to = "antibiotic") %>%
+  filter(!is.na(mic), !mic == "NULL") %>% mutate(data = "sdro")
 
 unique(sidero_clean$mic)
+colnames(sidero_clean) <- tolower(colnames(sidero_clean))
+sidero_clean <- rename(sidero_clean, "source" = "body location")
+sidero_clean <- rename(sidero_clean, "year" = "year collected")
+sidero_clean <- rename(sidero_clean, "organism" = "organism name")
 
-###### Venatorx
+
+###### (6) Venatorx
 vena <- readxl::read_excel("data/Venatorx surveillance data for Vivli 27Feb2023.xlsx")
 colnames(vena) # Age and gender. Country, bodysite, facility
 head(vena)
@@ -139,8 +155,63 @@ vena$MEM_MIC <- as.character(vena$MEM_MIC) # make characters to harmonise for no
 vena$TZP_MIC <- as.character(vena$TZP_MIC) # make characters to harmonise for now
 
 # Pivot longer to explore ranges in MIC
-vena_clean <- vena %>% pivot_longer(cols = `CAZ_MIC`:`TZP_MIC`, values_to = "mic", names_to = "antibiotic")
+vena_clean <- vena %>% pivot_longer(cols = `CAZ_MIC`:`TZP_MIC`, values_to = "mic", names_to = "antibiotic") %>% 
+  filter(!is.na(mic), !mic == "-") %>% mutate(data = "vena")
 
 unique(vena_clean$mic)
+colnames(vena_clean) <- tolower(colnames(vena_clean))
+vena_clean <- rename(vena_clean, "source" = "bodysite")
 
+
+#### Combine data: only explore age / gender / country / body location 
+col_use <- c("age","gender","source","year", "organism","antibiotic","mic","data")
+
+full_data <- rbind(atlas_clean[,col_use],gsk_clean[,col_use], 
+      vena_clean[,col_use],oma_clean[,col_use]) %>% 
+  filter(!is.na(mic), !is.na(age), !is.na(gender), !gender == "N") %>% 
+  mutate(organism_clean = "")
+
+dim(full_data)
+unique(full_data$age)
+unique(full_data$gender)
+full_data$gender <- tolower(full_data$gender)
+full_data$gender <- substr(full_data$gender, 1, 1)     
+unique(full_data$gender)
+unique(full_data$year)
+unique(full_data$mic)
+full_data$mic <- gsub('<', '', full_data$mic)
+full_data$mic <- gsub('>', '', full_data$mic)
+full_data$mic <- gsub('=', '', full_data$mic)
+full_data$mic <- gsub('≤', '', full_data$mic)
+unique(full_data$mic)
+full_data$mic <- as.numeric(full_data$mic)
+
+#### Clean organism for 3 top bugs for now
+u <- unique(full_data$organism)
+# S. aureus
+u[str_which(u, "aureus")] # yes
+u[str_which(u, "Staph")] # too many: think above captures it 
+full_data[which(full_data$organism == u[str_which(u, "aureus")]),"organism_clean"] <- "Staphylococcus aureus"
+
+# E coli 
+u[str_which(u, "coli")] # no too many others 
+u[str_which(u, "E coli")] # none
+u[str_which(u, "E. coli")] # none
+u[str_which(u, "Escherichia")] # too many
+full_data[which(full_data$organism == u[str_which(u, "Escherichia coli")]),"organism_clean"] <- "Escherichia coli"
+
+# Klebsiella 
+u[str_which(u, "Kleb")] # no too many others 
+u[str_which(u, "kleb")] # none
+u[str_which(u, "Klebsiella")] # lots
+u[str_which(u, "pneumoniae")] # lots
+full_data[which(full_data$organism == u[str_which(u,  "Klebsiella pneumoniae")]),"organism_clean"] <- "Klebsiella pneumoniae"
+
+dim(full_data)
+head(full_data)
+
+
+### Clean antibiotics... 
+full_data$antibiotic <- tolower(full_data$antibiotic)
+abx <- unique(full_data$antibiotic) # remove those wtih "_mic"? which database do they come from? 
 
