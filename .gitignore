@@ -2,6 +2,8 @@
 .Rhistory
 .RData
 .Ruserdata
+.DS_Store
+.Rpoj
 
 # History files
 .Rhistory
