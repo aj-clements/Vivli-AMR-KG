@@ -236,6 +236,8 @@ full_data[ age > 84, age_group := "85 and Over"]
 full_data[age_group == "Unknown", age_group := NA]
 full_data <- full_data[!is.na(age_group)]
 
+## Explore source 
+
 
 #### output
 write.csv(full_data, "data/full_data.csv")
