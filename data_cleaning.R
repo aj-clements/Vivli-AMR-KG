@@ -243,6 +243,25 @@ write.csv(full_data, "data/full_data.csv")
 
 ########## NAOMI WORKING - start ##########
 
+# rename the vena antibiotics
+full_data[antibiotic == "caz_mic", antibiotic := "ceftazidime"]
+full_data[antibiotic == "c_mic", antibiotic := "chloramphenicol"]
+full_data[antibiotic == "cip_mic", antibiotic := "ciprofloxacin"]
+full_data[antibiotic == "cl_mic", antibiotic := "colistin"]
+full_data[antibiotic == "fep_mic", antibiotic := "cefepime"]
+full_data[antibiotic == "gm_mic", antibiotic := "gentamicin"]
+full_data[antibiotic == "ipm_mic", antibiotic := "imipenem"]
+full_data[antibiotic == "lvx_mic", antibiotic := "levofloxacin"]
+full_data[antibiotic == "mem_mic", antibiotic := "meropenem"]
+full_data[antibiotic == "mi_mic", antibiotic := "minocycline"]
+full_data[antibiotic == "sxt_mic", antibiotic := "trimethoprim-sulfamethoxazole"]
+full_data[antibiotic == "tim_mic", antibiotic := "ticarcillin-clavulanic acid"]
+full_data[antibiotic == "tzp_mic", antibiotic := "piperacillin-tazobactam"]
+# check them
+unique(full_data$antibiotic)
+# rename some other weird ones
+full_data[antibiotic == "piperacillin-\r\ntazobactam", antibiotic := "piperacillin-tazobactam"]
+# other ones I'm not sure about: "dha", "cmy11", "actmir", but they're only 3,24 and 3 of them for non-standard bugs, so fine to ignore?
 
 levo_staph <-  full_data[organism_clean %in% c("Staphylococcus aureus") & antibiotic %in% c("levofloxacin")]
 
@@ -258,6 +277,9 @@ ggplot(for_plot, aes(x= mic, y =cumulative_sum, colour = data)) +
   scale_x_log10() + 
   facet_grid(.~age_group) + 
   theme_linedraw() 
+
+# check relative numbers from different data sets
+for_plot[,sum(N), by = data]
 
 
 ########## NAOMI WORKING - end ##########
