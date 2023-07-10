@@ -8,6 +8,7 @@
 ## Libraries
 library(tidyverse)
 library(readxl)
+library(data.table)
 
 ## Read in data 
 list.files("data") # should be 6 files
@@ -22,6 +23,7 @@ table(atlas$Speciality)
 table(atlas$Study)
 
 ### Explore antibiotic data 
+# NRW: did you do this for all and just keep some? Or why these ones?
 unique(atlas$Amikacin)
 # Some data are logicals: no MIC, remove
 unique(atlas$Gatifloxacin)
@@ -33,6 +35,8 @@ unique(atlas$`Quinupristin dalfopristin`)
 atlas$`Quinupristin dalfopristin` <- as.character(atlas$`Quinupristin dalfopristin`)
 
 # Pivot longer to explore ranges in MIC
+# Ignores the specified drugs, melts the rest, removes NAs and adds a colum for data source
+# NOTE! This melts in both the mic value, but also the categorisation (S/I/R etc). So many records in twice. Drops out later. 
 atlas_clean <- atlas %>% select(-c("Gatifloxacin", "Gatifloxacin_I","Tetracycline")) %>% 
   pivot_longer(cols = `Amikacin`:`GIM`, values_to = "mic", names_to = "antibiotic") %>% 
   filter(!is.na(mic)) %>% mutate(data = "atls")
@@ -78,7 +82,7 @@ colnames(oma) # Age and Gender in there, alongside
 head(oma)
 dim(oma) # big: 83209
 table(oma$Gender)
-table(oma$Age) # good range
+table(oma$Age) # good range! ### THHERE ARE AGES ABOVE 248!!! 
 table(oma$`CF Patient`) # info on ~4000: 3738 CF patients
 table(oma$Country) # Global
 table(oma$Organism) # lots
@@ -134,7 +138,6 @@ sidero_clean <- rename(sidero_clean, "source" = "body location")
 sidero_clean <- rename(sidero_clean, "year" = "year collected")
 sidero_clean <- rename(sidero_clean, "organism" = "organism name")
 
-
 ###### (6) Venatorx
 vena <- readxl::read_excel("data/Venatorx surveillance data for Vivli 27Feb2023.xlsx")
 colnames(vena) # Age and gender. Country, bodysite, facility
@@ -166,6 +169,7 @@ vena_clean <- rename(vena_clean, "source" = "bodysite")
 #### Combine data: only explore age / gender / country / body location 
 col_use <- c("age","gender","source","year", "organism","antibiotic","mic","data")
 
+# combine the datasets
 full_data <- rbind(atlas_clean[,col_use],gsk_clean[,col_use], 
       vena_clean[,col_use],oma_clean[,col_use]) %>% 
   filter(!is.na(mic), !is.na(age), !is.na(gender), !gender == "N") %>% 
@@ -210,11 +214,51 @@ full_data[which(full_data$organism == u[str_which(u,  "Klebsiella pneumoniae")])
 dim(full_data)
 head(full_data)
 
+# remove those with NA for MIC value
+full_data <- full_data %>% filter(!is.na(mic))
+
 
 ### Clean antibiotics... 
 full_data$antibiotic <- tolower(full_data$antibiotic)
 abx <- unique(full_data$antibiotic) # remove those wtih "_mic"? which database do they come from? 
 
+### compare across datasets
+full_data <- data.table(full_data)
+
+full_data[, age_group := age]
+full_data[, age := as.numeric(age)]
+full_data[ !is.na(age), age_group := "0 to 2 Years"]
+full_data[ age > 2, age_group := "3 to 12 Years"]
+full_data[ age > 12, age_group := "13 to 18 Years"]
+full_data[ age > 18, age_group := "19 to 64 Years"]
+full_data[ age > 64, age_group := "65 to 84 Years"]
+full_data[ age > 84, age_group := "85 and Over"]
+full_data[age_group == "Unknown", age_group := NA]
+full_data <- full_data[!is.na(age_group)]
+
+
 #### output
 write.csv(full_data, "data/full_data.csv")
+
+
+########## NAOMI WORKING - start ##########
+
+
+levo_staph <-  full_data[organism_clean %in% c("Staphylococcus aureus") & antibiotic %in% c("levofloxacin")]
+
+test <- levo_staph[, .N, by = .(age_group, mic,data )]
+test2 <- levo_staph[, .N, by = .(age_group, data)]
+test[test2, on = c("age_group", "data"), total := i.N]
+test[,prop := N/total]
+test <- test[order(mic, data, age_group)]
+for_plot <-test[, cumulative_sum := cumsum(prop), by = c("data", "age_group")]
+# does MIC vary across data sets?
+ggplot(for_plot, aes(x= mic, y =cumulative_sum, colour = data)) + 
+  geom_line()+
+  scale_x_log10() + 
+  facet_grid(.~age_group) + 
+  theme_linedraw() 
+
+
+########## NAOMI WORKING - end ##########
 
