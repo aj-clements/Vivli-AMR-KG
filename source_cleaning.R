@@ -12,7 +12,8 @@ colnames(tt) <- c("source","freq")
 
 
 ### Key sources: 
-## Urine / blood / respiratory / wound / genital
+## Urine / blood / respiratory / wound / gastro
+# Could add reproduction / head (ear / eys) / heart 
 tt <- tt %>% mutate("key_source" = "") # add a column that is for the key classification of sources
 tt$source <- tolower(tt$source)
 full_data$source <- tolower(full_data$source)
@@ -22,12 +23,14 @@ tt$source[str_which(tt$source, "urine")]
 tt$source[str_which(tt$source, "bladder")] # not gall bladder
 tt$source[str_which(tt$source, "urinary")] # 
 tt$source[str_which(tt$source, "urethra")] # 
+tt$source[str_which(tt$source, "ureter")] # 
 
 
 full_data[str_which(full_data$source, "urine"),"key_source"] <- "urine"
 full_data[str_which(full_data$source, "urinary"),"key_source"] <- "urine"
 full_data[str_which(full_data$source, "urethra"),"key_source"] <- "urine"
 full_data[which(full_data$source == "bladder"), "key_source"] <- "urine"
+full_data[which(full_data$source == "ureter"), "key_source"] <- "urine"
 
 # blood
 tt$source[str_which(tt$source, "blood")]
@@ -44,6 +47,7 @@ tt$source[str_which(tt$source, "sinus")]
 tt$source[str_which(tt$source, "trache")]
 tt$source[str_which(tt$source, "phagus")]
 tt$source[str_which(tt$source, "lavage")]
+tt$source[str_which(tt$source, "bronchiole")]
 
 
 full_data[str_which(full_data$source, "respiratory"),"key_source"] <- "respiratory"
@@ -55,7 +59,7 @@ full_data[str_which(full_data$source, "trache"),"key_source"] <- "respiratory"
 full_data[str_which(full_data$source, "lavage"),"key_source"] <- "respiratory"
 full_data[which(full_data$source == "bronchus"),"key_source"] <- "respiratory"
 full_data[which(full_data$source == "pleural fluid"),"key_source"] <- "respiratory"
-
+full_data[which(full_data$source == "bronchiole"),"key_source"] <- "respiratory"
 # wound
 tt$source[str_which(tt$source, "wound")]
 tt$source[str_which(tt$source, "burn")]
