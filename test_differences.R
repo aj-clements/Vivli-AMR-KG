@@ -41,6 +41,30 @@ tab <- tab[-c(1)]
 
 chisq.test(tab)
 # this tells us that there are differences between the groups! But it doesn't control for anyhting
+# to control need to do it seperated by the potential confounder and see if still holds
+test <- lev_staph[, .N, by = c("age_group", "mic_cat", "key_source")]
+
+# respiratory
+test_resp <- test[key_source == "respiratory"]
+tab_resp <- data.frame(dcast(test_resp, age_group ~ mic_cat, value.var = "N"))
+rownames(tab_resp) <- tab_resp$age_group
+tab_resp <- tab_resp[-c(1)]
+chisq.test(tab_resp)
+#blood
+test_blood <- test[key_source == "blood"]
+tab_blood <- data.frame(dcast(test_blood, age_group ~ mic_cat, value.var = "N"))
+rownames(tab_blood) <- tab_blood$age_group
+tab_blood <- tab_blood[-c(1)]
+chisq.test(tab_blood)
+#gastro
+test_gastro <- test[key_source == "gastro"]
+tab_gastro <- data.frame(dcast(test_gastro, age_group ~ mic_cat, value.var = "N"))
+rownames(tab_gastro) <- tab_gastro$age_group
+tab_gastro <- tab_gastro[-c(1)]
+chisq.test(tab_gastro)
+
+# etc. 
+
 
 # A plot to understand
 ggplot(lev_staph, aes(x = age_group, y = mic_cat)) + 
