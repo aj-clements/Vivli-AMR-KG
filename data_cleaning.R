@@ -75,10 +75,6 @@ gsk_clean <- rename(gsk_clean, "source" = "bodylocation")
 gsk_clean <- rename(gsk_clean, "year" = "yearcollected")
 gsk_clean <- rename(gsk_clean, "organism" = "organismname")
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 6a2115b9fd5e5bb6da57bda1ba40a14513c898df
 ###### (4) Omadacycline
 oma <- readxl::read_excel("data/Omadacycline_2014_to_2022_Surveillance_data.xlsx")
 colnames(oma) # Age and Gender in there, alongside 
@@ -102,26 +98,18 @@ unique(oma$Penicillin)
 
 # Pivot longer to explore ranges in MIC
 oma_clean <- oma %>% select(-c("Oxacillin","Ceftaroline","Ceftriaxone","Amoxicillin-\r\nclavulanic acid","Erythromycin","Clindamycin","Linezolid","Daptomycin",
-<<<<<<< HEAD
                                "Vancomycin","Teicoplanin","Ampicillin","Azithromycin","Aztreonam","Ceftazidime","Colistin","Moxifloxacin","Penicillin")) %>% 
   pivot_longer(cols = `Omadacycline`:`Trimethoprim-sulfamethoxazole`, values_to = "mic", names_to = "antibiotic") %>%
-  filter(!is.na(mic)) # remove NAs
-=======
-                               "Vancomycin","Teicoplanin","Ampicillin","Azithromycin","Aztreonam","Ceftazidime","Colistin","Moxifloxacin","Penicillin")) %>% pivot_longer(cols = `Omadacycline`:`Trimethoprim-sulfamethoxazole`, values_to = "mic", names_to = "antibiotic") %>%
   filter(!is.na(mic)) %>% mutate(data = "omad") %>%
   filter(Age < 120) # some odd year entries = birth date? 
->>>>>>> 6a2115b9fd5e5bb6da57bda1ba40a14513c898df
+
 
 unique(oma_clean$mic)
 colnames(oma_clean) <- tolower(colnames(oma_clean))
 oma_clean <- rename(oma_clean, "source" = "specimen type")
 oma_clean <- rename(oma_clean, "year" = "study year")
 
-<<<<<<< HEAD
-=======
 
-
->>>>>>> 6a2115b9fd5e5bb6da57bda1ba40a14513c898df
 ###### (5) SIDERO
 sidero <- readxl::read_excel("data/Updated_Shionogi Five year SIDERO-WT Surveillance data(without strain number)_Vivli_220409.xlsx")
 colnames(sidero) # No age and gender. Country, body location. 
@@ -141,13 +129,9 @@ sidero$`Ceftolozane/ Tazobactam`<- as.character(sidero$`Ceftolozane/ Tazobactam`
 sidero$Cefepime<- as.character(sidero$Cefepime) # make characters to harmonise for now
 
 # Pivot longer to explore ranges in MIC
-<<<<<<< HEAD
+
 sidero_clean <- sidero %>% pivot_longer(cols = `Cefiderocol`:`Imipenem/ Relebactam`, values_to = "mic", names_to = "antibiotic") %>% 
-  filter(!is.null(mic), !mic == "NULL")
-=======
-sidero_clean <- sidero %>% pivot_longer(cols = `Cefiderocol`:`Imipenem/ Relebactam`, values_to = "mic", names_to = "antibiotic") %>%
   filter(!is.na(mic), !mic == "NULL") %>% mutate(data = "sdro", age = 1000, gender = "m") # add mock data for age and gender 
->>>>>>> 6a2115b9fd5e5bb6da57bda1ba40a14513c898df
 
 unique(sidero_clean$mic)
 colnames(sidero_clean) <- tolower(colnames(sidero_clean))
