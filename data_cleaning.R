@@ -169,7 +169,7 @@ vena_clean <- rename(vena_clean, "source" = "bodysite")
 
 
 #### Combine data: only explore age / gender / country / body location 
-col_use <- c("age","gender","source","year", "organism","antibiotic","mic","data")
+col_use <- c("age","gender","source","year", "country","organism","antibiotic","mic","data")
 
 ########## Combine the datasets ########
 full_data <- rbind(atlas_clean[,col_use],gsk_clean[,col_use], 
