@@ -64,7 +64,7 @@ gsk_clean <- gsk %>% #select(-c("Gatifloxacin", "Gatifloxacin_I","Tetracycline")
 
 unique(gsk_clean$mic)
 
-###### Omadacycline
+###### (4) Omadacycline
 oma <- readxl::read_excel("data/Omadacycline_2014_to_2022_Surveillance_data.xlsx")
 colnames(oma) # Age and Gender in there, alongside 
 head(oma)
@@ -84,19 +84,16 @@ unique(oma$Ceftriaxone)
 unique(oma[,12])
 unique(oma$Ampicillin)
 unique(oma$Penicillin)
-# Some are all NA: remove
-unique(oma$Gatifloxacin_I)
-# Some are doubles: make characters for now
-unique(oma$`Quinupristin dalfopristin`)
-oma$`Quinupristin dalfopristin` <- as.character(oma$`Quinupristin dalfopristin`)
 
 # Pivot longer to explore ranges in MIC
 oma_clean <- oma %>% select(-c("Oxacillin","Ceftaroline","Ceftriaxone","Amoxicillin-\r\nclavulanic acid","Erythromycin","Clindamycin","Linezolid","Daptomycin",
-                               "Vancomycin","Teicoplanin","Ampicillin","Azithromycin","Aztreonam","Ceftazidime","Colistin","Moxifloxacin","Penicillin")) %>% pivot_longer(cols = `Omadacycline`:`Trimethoprim-sulfamethoxazole`, values_to = "mic", names_to = "antibiotic")
+                               "Vancomycin","Teicoplanin","Ampicillin","Azithromycin","Aztreonam","Ceftazidime","Colistin","Moxifloxacin","Penicillin")) %>% 
+  pivot_longer(cols = `Omadacycline`:`Trimethoprim-sulfamethoxazole`, values_to = "mic", names_to = "antibiotic") %>%
+  filter(!is.na(mic)) # remove NAs
 
 unique(oma_clean$mic)
 
-###### SIDERO
+###### (5) SIDERO
 sidero <- readxl::read_excel("data/Updated_Shionogi Five year SIDERO-WT Surveillance data(without strain number)_Vivli_220409.xlsx")
 colnames(sidero) # No age and gender. Country, body location. 
 head(sidero)
@@ -115,7 +112,8 @@ sidero$`Ceftolozane/ Tazobactam`<- as.character(sidero$`Ceftolozane/ Tazobactam`
 sidero$Cefepime<- as.character(sidero$Cefepime) # make characters to harmonise for now
 
 # Pivot longer to explore ranges in MIC
-sidero_clean <- sidero %>% pivot_longer(cols = `Cefiderocol`:`Imipenem/ Relebactam`, values_to = "mic", names_to = "antibiotic")
+sidero_clean <- sidero %>% pivot_longer(cols = `Cefiderocol`:`Imipenem/ Relebactam`, values_to = "mic", names_to = "antibiotic") %>% 
+  filter(!is.null(mic), !mic == "NULL")
 
 unique(sidero_clean$mic)
 
