@@ -259,6 +259,9 @@ full_data[ age > 84, age_group := "85 and Over"]
 full_data[age_group == "Unknown", age_group := NA]
 full_data <- full_data[!is.na(age_group)]
 unique(full_data$age_group)
+full_data$age_group <- factor(full_data$age_group, 
+                                 levels = c("0 to 2 Years","3 to 12 Years", "13 to 18 Years",
+                                   "19 to 64 Years", "65 to 84 Years", "85 and Over"))
 
 #### Source cleaning 
 full_data <- full_data %>% mutate(key_source = "") # add new column for cleaned source data
