@@ -13,14 +13,14 @@ data_just_source <- data %>% filter(!is.na(organism_clean), !is.na(key_source)) 
   group_by(organism_clean, antibiotic, key_source, mic) %>% 
   summarise(n = n()) %>% 
   group_by(organism_clean, antibiotic, key_source) %>% 
-  mutate(cum_n = cumsum(n))
+  mutate(cum_n = cumsum(n), total = sum(n), prop = cum_n / total)
 
-ggplot(data_just_source, aes(x=mic, y= cum_n, group = key_source)) + 
+ggplot(data_just_source, aes(x=mic, y= prop, group = key_source)) + 
   geom_line(aes(col = key_source)) + 
   facet_wrap(organism_clean ~ antibiotic, scales = "free")
 ggsave("plots/source_all_group.pdf")
 
-ggplot(data_just_source, aes(x=mic, y= cum_n, group = key_source)) + 
+ggplot(data_just_source, aes(x=mic, y= prop, group = key_source)) + 
   geom_line(aes(col = key_source)) + 
   facet_grid(organism_clean ~ antibiotic, scales = "free")
 ggsave("plots/source_all_group_grid.pdf", height = 10, width = 20)
@@ -34,15 +34,15 @@ for(i in bugs$organism_clean){
     group_by(organism_clean, antibiotic, key_source, mic, age_group, gender) %>% 
     summarise(n = n()) %>% 
     group_by(organism_clean, antibiotic, key_source, age_group, gender) %>% 
-    mutate(cum_n = cumsum(n))
+    mutate(cum_n = cumsum(n), total = sum(n), prop = cum_n / total)
   
-  ggplot(data_sag, aes(x=mic, y= cum_n, group = interaction(age_group, gender, key_source))) + 
+  ggplot(data_sag, aes(x=mic, y= prop, group = interaction(age_group, gender, key_source))) + 
     geom_line(aes(col = age_group, lty = key_source)) + 
     facet_wrap(gender ~ antibiotic, scales = "free") + 
     ggtitle(i)
   ggsave(paste0("plots/source_",substr(i,1,4),"_ag_age.pdf"))
   
-  ggplot(data_sag, aes(x=mic, y= cum_n, group = interaction(age_group, gender, key_source))) + 
+  ggplot(data_sag, aes(x=mic, y= prop, group = interaction(age_group, gender, key_source))) + 
     geom_line(aes(col = key_source, lty = gender)) + 
     facet_grid(age_group ~ antibiotic, scales = "free") + 
     ggtitle(i)
@@ -65,15 +65,15 @@ for(i in bugs$organism_clean){
     group_by(organism_clean, antibiotic, key_source, mic, age_group, gender) %>% 
     summarise(n = n()) %>% 
     group_by(organism_clean, antibiotic, key_source, age_group, gender) %>% 
-    mutate(cum_n = cumsum(n))
+    mutate(cum_n = cumsum(n), total = sum(n), prop = cum_n / total)
   
-  ggplot(data_sag, aes(x=mic, y= cum_n, group = interaction(age_group, gender, key_source))) + 
+  ggplot(data_sag, aes(x=mic, y= prop, group = interaction(age_group, gender, key_source))) + 
     geom_line(aes(col = age_group, lty = key_source)) + 
     facet_wrap(gender ~ antibiotic, scales = "free") + 
     ggtitle(i)
   ggsave(paste0("plots/source_",substr(i,1,4),"_ag_age_focusabx.pdf"))
   
-  ggplot(data_sag, aes(x=mic, y= cum_n, group = interaction(age_group, gender, key_source))) + 
+  ggplot(data_sag, aes(x=mic, y= prop, group = interaction(age_group, gender, key_source))) + 
     geom_line(aes(col = key_source, lty = gender)) + 
     facet_grid(age_group ~ antibiotic, scales = "free") + 
     ggtitle(i)
