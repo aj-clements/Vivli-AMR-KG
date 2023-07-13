@@ -105,7 +105,7 @@ oma_clean <- oma %>% select(-c("Oxacillin","Ceftaroline","Ceftriaxone","Amoxicil
 
 unique(oma_clean$mic)
 colnames(oma_clean) <- tolower(colnames(oma_clean))
-oma_clean <- rename(oma_clean, "source" = "infection source")
+oma_clean <- rename(oma_clean, "source" = "specimen type")
 oma_clean <- rename(oma_clean, "year" = "study year")
 
 
@@ -130,13 +130,14 @@ sidero$Cefepime<- as.character(sidero$Cefepime) # make characters to harmonise f
 
 # Pivot longer to explore ranges in MIC
 sidero_clean <- sidero %>% pivot_longer(cols = `Cefiderocol`:`Imipenem/ Relebactam`, values_to = "mic", names_to = "antibiotic") %>%
-  filter(!is.na(mic), !mic == "NULL") %>% mutate(data = "sdro")
+  filter(!is.na(mic), !mic == "NULL") %>% mutate(data = "sdro", age = 1000, gender = "m") # add mock data for age and gender 
 
 unique(sidero_clean$mic)
 colnames(sidero_clean) <- tolower(colnames(sidero_clean))
 sidero_clean <- rename(sidero_clean, "source" = "body location")
 sidero_clean <- rename(sidero_clean, "year" = "year collected")
 sidero_clean <- rename(sidero_clean, "organism" = "organism name")
+
 
 ###### (6) Venatorx
 vena <- readxl::read_excel("data/Venatorx surveillance data for Vivli 27Feb2023.xlsx")
@@ -169,29 +170,46 @@ vena_clean <- rename(vena_clean, "source" = "bodysite")
 #### Combine data: only explore age / gender / country / body location 
 col_use <- c("age","gender","source","year", "organism","antibiotic","mic","data")
 
-# combine the datasets
+########## Combine the datasets ########
 full_data <- rbind(atlas_clean[,col_use],gsk_clean[,col_use], 
-      vena_clean[,col_use],oma_clean[,col_use]) %>% 
+      vena_clean[,col_use],oma_clean[,col_use], sidero_clean[,col_use]) %>% 
   filter(!is.na(mic), !is.na(age), !is.na(gender), !gender == "N") %>% 
   mutate(organism_clean = "")
 
-dim(full_data)
-unique(full_data$age)
+dim(full_data) # 24,523,575   
+
+
+# Clean gender
 unique(full_data$gender)
 full_data$gender <- tolower(full_data$gender)
 full_data$gender <- substr(full_data$gender, 1, 1)     
 unique(full_data$gender)
+
+# Clean year: no need
 unique(full_data$year)
+
+# Clean mic
 unique(full_data$mic)
 full_data$mic <- gsub('<', '', full_data$mic)
 full_data$mic <- gsub('>', '', full_data$mic)
 full_data$mic <- gsub('=', '', full_data$mic)
 full_data$mic <- gsub('≤', '', full_data$mic)
+full_data$mic <- gsub('<=', '', full_data$mic)
 unique(full_data$mic)
+# still many alphanumeric: is convert to as.numeric and then filter out NAs this should work? 
 full_data$mic <- as.numeric(full_data$mic)
+full_data_cl <- full_data %>% filter(!is.na(mic)) 
+100*dim(full_data_cl)[1] / dim(full_data)[1] # 45% of rows removed by filtering for numeric MIC
 
-#### Clean organism for 3 top bugs for now
+full_data <- full_data_cl
+
+#### Clean organism for 4 top bugs for now
 u <- unique(full_data$organism)
+table(full_data$organism) %>% as.data.frame() %>% 
+  arrange(desc(Freq)) 
+## 4 have > 1.4M. Rest <<< 750. 
+
+
 # S. aureus
 u[str_which(u, "aureus")] # yes
 u[str_which(u, "Staph")] # too many: think above captures it 
@@ -211,22 +229,26 @@ u[str_which(u, "Klebsiella")] # lots
 u[str_which(u, "pneumoniae")] # lots
 full_data[which(full_data$organism == u[str_which(u,  "Klebsiella pneumoniae")]),"organism_clean"] <- "Klebsiella pneumoniae"
 
+# P aeruginosa
+u[str_which(u, "pseud")] # no too many others 
+u[str_which(u, "aeru")] # none
+u[str_which(u, "Pseud")] # lots
+u[str_which(u, "P.")] # lots
+full_data[which(full_data$organism == u[str_which(u,  "Pseudomonas aeruginosa")]),"organism_clean"] <- "Pseudomonas aeruginosa"
+
+
 dim(full_data)
 head(full_data)
 
-# remove those with NA for MIC value
-full_data <- full_data %>% filter(!is.na(mic))
 
-
-### Clean antibiotics... 
-full_data$antibiotic <- tolower(full_data$antibiotic)
-abx <- unique(full_data$antibiotic) # remove those wtih "_mic"? which database do they come from? 
-
-### compare across datasets
+### Clean age
 full_data <- data.table(full_data)
 
+# ATLAS data already in age_groups: move this over
 full_data[, age_group := age]
-full_data[, age := as.numeric(age)]
+# Make all ages numeric (this will make nas for atls but fine as already moved to age_group)
+full_data[, age := as.numeric(age)] 
+unique(full_data$age)
 full_data[ !is.na(age), age_group := "0 to 2 Years"]
 full_data[ age > 2, age_group := "3 to 12 Years"]
 full_data[ age > 12, age_group := "13 to 18 Years"]
@@ -235,17 +257,65 @@ full_data[ age > 64, age_group := "65 to 84 Years"]
 full_data[ age > 84, age_group := "85 and Over"]
 full_data[age_group == "Unknown", age_group := NA]
 full_data <- full_data[!is.na(age_group)]
+unique(full_data$age_group)
 
-## Explore source 
+#### Source cleaning 
+full_data <- full_data %>% mutate(key_source = "") # add new column for cleaned source data
+full_data$source <- tolower(full_data$source)
+
+### What is in there?  see source_cleaning.R for analysis
+# u <- unique(full_data$source)
+# tt <- table(full_data$source) %>% as.data.frame() %>% 
+#   arrange(desc(Freq))  # easier to manipulate shorter dataframe for exploration of terms
+# colnames(tt) <- c("source","freq")
+
+### Key sources: 
+## Urine / blood / respiratory / wound / gastro
+# Could add reproduction / head (ear / eys) / heart 
 
 
-#### output
-write.csv(full_data, "data/full_data.csv")
+# urine
+full_data[str_which(full_data$source, "urine"),"key_source"] <- "urine"
+full_data[str_which(full_data$source, "urinary"),"key_source"] <- "urine"
+full_data[str_which(full_data$source, "urethra"),"key_source"] <- "urine"
+full_data[which(full_data$source == "bladder"), "key_source"] <- "urine"
+full_data[which(full_data$source == "ureter"), "key_source"] <- "urine"
+
+# blood
+full_data[str_which(full_data$source, "blood"),"key_source"] <- "blood"
+
+# respiratory
+full_data[str_which(full_data$source, "respiratory"),"key_source"] <- "respiratory"
+full_data[str_which(full_data$source, "lung"),"key_source"] <- "respiratory"
+full_data[str_which(full_data$source, "sputum"),"key_source"] <- "respiratory"
+full_data[str_which(full_data$source, "aspirate"),"key_source"] <- "respiratory"
+full_data[str_which(full_data$source, "sinus"),"key_source"] <- "respiratory"
+full_data[str_which(full_data$source, "trache"),"key_source"] <- "respiratory"
+full_data[str_which(full_data$source, "lavage"),"key_source"] <- "respiratory"
+full_data[which(full_data$source == "bronchus"),"key_source"] <- "respiratory"
+full_data[which(full_data$source == "pleural fluid"),"key_source"] <- "respiratory"
+full_data[which(full_data$source == "bronchiole"),"key_source"] <- "respiratory"
+
+# wound
+full_data[str_which(full_data$source, "wound"),"key_source"] <- "wound"
+full_data[str_which(full_data$source, "burn"),"key_source"] <- "wound"
+full_data[str_which(full_data$source, "skin"),"key_source"] <- "wound"
+full_data[str_which(full_data$source, "pus"),"key_source"] <- "wound"
+full_data[str_which(full_data$source, "cellulitis"),"key_source"] <- "wound"
+full_data[which(full_data$source == "abscess"),"key_source"] <- "wound"
+
+### Gastrointestinal track 
+full_data[str_which(full_data$source, "gi:"),"key_source"] <- "gastro"
+full_data[str_which(full_data$source, "bowel"),"key_source"] <- "gastro"
+full_data[str_which(full_data$source, "intestinal"),"key_source"] <- "gastro"
+full_data[str_which(full_data$source, "gastric abscess"),"key_source"] <- "gastro"
+full_data[str_which(full_data$source, "colon"),"key_source"] <- "gastro"
 
 
-########## NAOMI WORKING - start ##########
-
-# rename the vena antibiotics
+### Antibiotics tidy
+full_data$antibiotic <- tolower(full_data$antibiotic)
+abx <- unique(full_data$antibiotic) 
+# rename the vena antibiotics (with _mic)
 full_data[antibiotic == "caz_mic", antibiotic := "ceftazidime"]
 full_data[antibiotic == "c_mic", antibiotic := "chloramphenicol"]
 full_data[antibiotic == "cip_mic", antibiotic := "ciprofloxacin"]
@@ -263,26 +333,12 @@ full_data[antibiotic == "tzp_mic", antibiotic := "piperacillin-tazobactam"]
 unique(full_data$antibiotic)
 # rename some other weird ones
 full_data[antibiotic == "piperacillin-\r\ntazobactam", antibiotic := "piperacillin-tazobactam"]
-# other ones I'm not sure about: "dha", "cmy11", "actmir", but they're only 3,24 and 3 of them for non-standard bugs, so fine to ignore?
-
-levo_staph <-  full_data[organism_clean %in% c("Staphylococcus aureus") & antibiotic %in% c("levofloxacin")]
-
-test <- levo_staph[, .N, by = .(age_group, mic,data )]
-test2 <- levo_staph[, .N, by = .(age_group, data)]
-test[test2, on = c("age_group", "data"), total := i.N]
-test[,prop := N/total]
-test <- test[order(mic, data, age_group)]
-for_plot <-test[, cumulative_sum := cumsum(prop), by = c("data", "age_group")]
-# does MIC vary across data sets?
-ggplot(for_plot, aes(x= mic, y =cumulative_sum, colour = data)) + 
-  geom_line()+
-  scale_x_log10() + 
-  facet_grid(.~age_group) + 
-  theme_linedraw() 
-
-# check relative numbers from different data sets
-for_plot[,sum(N), by = data]
+# other ones I'm not sure about: "dha", "cmy11", "actmir", but they're only 3,24 and 3 of them for non-standard bugs, so fine to ignore? GK: yup ignore
 
 
-########## NAOMI WORKING - end ##########
+### Focus
+dim(full_data)
+dim(full_data %>% filter(!organism_clean == ""))
 
+#### output
+write.csv(full_data %>% select(-age), "data/full_data.csv")
