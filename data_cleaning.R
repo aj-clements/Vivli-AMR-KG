@@ -259,6 +259,9 @@ full_data[ age > 84, age_group := "85 and Over"]
 full_data[age_group == "Unknown", age_group := NA]
 full_data <- full_data[!is.na(age_group)]
 unique(full_data$age_group)
+full_data$age_group <- factor(full_data$age_group, 
+                                 levels = c("0 to 2 Years","3 to 12 Years", "13 to 18 Years",
+                                   "19 to 64 Years", "65 to 84 Years", "85 and Over"))
 
 #### Source cleaning 
 full_data <- full_data %>% mutate(key_source = "") # add new column for cleaned source data
@@ -336,10 +339,23 @@ unique(full_data$antibiotic)
 full_data[antibiotic == "piperacillin-\r\ntazobactam", antibiotic := "piperacillin-tazobactam"]
 # other ones I'm not sure about: "dha", "cmy11", "actmir", but they're only 3,24 and 3 of them for non-standard bugs, so fine to ignore? GK: yup ignore
 
-
 ### Focus
 dim(full_data)
 dim(full_data %>% filter(!organism_clean == ""))
 
+# add income groups (world bank) and who regions
+# NOTE: venezuela is unclassified on income group! Have asssigned umic
+income_grps <- as.data.table(read_csv("income.csv"))
+who_regions <- as.data.table(read_csv("who-regions.csv"))
+# match into full data
+full_data[income_grps, on = "country", income_grp := income]
+full_data[who_regions, on = "country", who_region := i.who_region]
+
 #### output
 write.csv(full_data %>% select(-age), "data/full_data.csv")
+
+
+
+
+
+
