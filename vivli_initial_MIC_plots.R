@@ -2,7 +2,7 @@
 library(data.table);library(ggplot2);library(cowplot)
 
 # SPECIFY What characteristic to look at. (Note: Must match column name)
-characteristic <- "age_group"
+characteristic <- "key_source"
 include_gender <- T # T or F. should also split by gender?
 
 # after specified the two above items, can just run the whole script and it will 
@@ -90,11 +90,12 @@ if(include_gender == T){
       # cumulative sum of proportion (first order)
       test <- test[order(MIC, gender,  get(characteristic))]
       for_plot <-test[, cumulative_sum := cumsum(prop), by = c("gender", characteristic)]
-      
+    
       # store plot
+      
       if(nrow(for_plot)>0){
         temp<- ggplot(for_plot, aes(x= MIC, y =cumulative_sum, colour = !!sym(characteristic), 
-                                            linetype = gender, group = interaction(gender,!!sym(characteristic)))) + 
+                                            linetype = gender)) + 
           geom_line()+
           labs(title = paste0("MIC by age group - ", i, paste0(". Tot samples = ", tot_samps)), x = "MIC value", 
                y = paste0("cumulative proportion of samples by ", characteristic), 
