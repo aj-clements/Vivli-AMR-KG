@@ -14,7 +14,9 @@ data_just_source <- data %>% group_by(organism_clean, antibiotic, key_source, mi
   group_by(organism_clean, antibiotic, key_source) %>% 
   mutate(cum_n = cumsum(n))
 
-
+ggplot(data_just_source, aes(x=mic, y = cum_n, group = key_source)) + 
+  geom_line(aes(col = key_source)) + 
+  facet_wrap(organism_clean ~ antibiotic)
 
 
 # 
