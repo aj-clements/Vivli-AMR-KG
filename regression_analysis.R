@@ -17,3 +17,10 @@ exp(coef(ord_mod))
 (exp(coef(ord_mod))-1)*100
 # older = more likely to have higher MIC. Gender and source make a difference but much less
 #but also varies a lot by source!
+
+
+##### QUESTIONS
+# Do want to also take account of year? 
+# and countries? This would probably require a multi-level model!
+# Or could do region which could probably be this or multilevel?
+# proportional odds the right model? I.e. is the assumption of proportionality appropiate?
