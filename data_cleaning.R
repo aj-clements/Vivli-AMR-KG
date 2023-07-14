@@ -339,10 +339,23 @@ unique(full_data$antibiotic)
 full_data[antibiotic == "piperacillin-\r\ntazobactam", antibiotic := "piperacillin-tazobactam"]
 # other ones I'm not sure about: "dha", "cmy11", "actmir", but they're only 3,24 and 3 of them for non-standard bugs, so fine to ignore? GK: yup ignore
 
-
 ### Focus
 dim(full_data)
 dim(full_data %>% filter(!organism_clean == ""))
 
+# add income groups (world bank) and who regions
+# NOTE: venezuela is unclassified on income group! Have asssigned umic
+income_grps <- as.data.table(read_csv("income.csv"))
+who_regions <- as.data.table(read_csv("who-regions.csv"))
+# match into full data
+full_data[income_grps, on = "country", income_grp := income]
+full_data[who_regions, on = "country", who_region := i.who_region]
+
 #### output
 write.csv(full_data %>% select(-age), "data/full_data.csv")
+
+
+
+
+
+
