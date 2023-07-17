@@ -74,7 +74,7 @@ atlas_clean[mic == "Intermediate", mic := "Resistant"]
 
 
 # check by what?
-characteristic <- "key_source" # age gender or key_source
+characteristic <- "age" # age gender or key_source
 atlas_clean <- atlas_clean[!is.na(get(characteristic))]
 
 
