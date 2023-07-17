@@ -1,5 +1,7 @@
 # regresssion analysis
 library(data.table)
+library(MASS)
+
 full_data <- as.data.table(read.csv("data/full_data.csv"))
 # subset to just look at one bug-dryg
 lev_staph <- full_data[antibiotic == "levofloxacin" & 
