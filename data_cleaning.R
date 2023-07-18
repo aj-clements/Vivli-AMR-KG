@@ -336,7 +336,19 @@ full_data[antibiotic == "tzp_mic", antibiotic := "piperacillin-tazobactam"]
 # check them
 unique(full_data$antibiotic)
 # rename some other weird ones
-full_data[antibiotic == "piperacillin-\r\ntazobactam", antibiotic := "piperacillin-tazobactam"]
+full_data[antibiotic == "piperacillin-\r\ntazobactam", antibiotic := "piperacillin tazobactam"]
+full_data[antibiotic == "piperacillin-tazobactam", antibiotic := "piperacillin tazobactam"]
+full_data[antibiotic == "ceftazidime/ avibactam", antibiotic := "ceftazidime avibactam"]
+full_data[antibiotic == "ceftolozane/ tazobactam", antibiotic := "ceftolozane tazobactam"]
+full_data[antibiotic == "imipenem/ relebactam", antibiotic := "imipenem relebactam"]
+full_data[antibiotic == "ampicillin/ sulbactam", antibiotic := "ampicillin sulbactam"]
+full_data[antibiotic == "aztreonam/ avibactam", antibiotic := "aztreonam avibactam"]
+full_data[antibiotic == "meropenem/ vaborbactam at 8", antibiotic := "meropenem vaborbactam"]
+full_data[antibiotic == "imipenem/ relebactam", antibiotic := "imipenem relebactam"]
+full_data[antibiotic == "trimethoprim_sulfa", antibiotic := "trimethoprim sulfa"]
+full_data[antibiotic == "trimethoprim-sulfamethoxazole", antibiotic := "trimethoprim sulfa"]
+full_data[antibiotic == "trimethoprim/ sulfamethoxazole", antibiotic := "trimethoprim sulfa"]
+
 # other ones I'm not sure about: "dha", "cmy11", "actmir", but they're only 3,24 and 3 of them for non-standard bugs, so fine to ignore? GK: yup ignore
 
 ### Focus
