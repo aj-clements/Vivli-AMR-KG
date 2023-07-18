@@ -12,6 +12,7 @@ overlapping_drugs_only <- T # T or F
 
 # read in the data
 full_data <- as.data.table(read.csv("data/full_data.csv"))
+source("overlapping_drugs.R")
 # make sure there's a folder to store the plots
 dir.create(file.path("plots"), showWarnings = FALSE)
 index_store <- c()
