@@ -330,9 +330,9 @@ full_data[antibiotic == "ipm_mic", antibiotic := "imipenem"]
 full_data[antibiotic == "lvx_mic", antibiotic := "levofloxacin"]
 full_data[antibiotic == "mem_mic", antibiotic := "meropenem"]
 full_data[antibiotic == "mi_mic", antibiotic := "minocycline"]
-full_data[antibiotic == "sxt_mic", antibiotic := "trimethoprim-sulfamethoxazole"]
+full_data[antibiotic == "sxt_mic", antibiotic := "trimethoprim sulfamethoxazole"]
 full_data[antibiotic == "tim_mic", antibiotic := "ticarcillin-clavulanic acid"]
-full_data[antibiotic == "tzp_mic", antibiotic := "piperacillin-tazobactam"]
+full_data[antibiotic == "tzp_mic", antibiotic := "piperacillin tazobactam"]
 # check them
 unique(full_data$antibiotic)
 # rename some other weird ones
