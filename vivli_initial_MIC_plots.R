@@ -121,7 +121,7 @@ if(include_gender == T){
           theme_linedraw() 
       }
       ## Explore index
-      index_store <- rbind(index_store, for_plot %>% group_by(MIC) %>% mutate(dff = diff(range(cumulative_sum))) %>% mutate(antibiotic = i, organism = j))
+      index_store <- rbind(index_store, for_plot %>% group_by(MIC, gender) %>% mutate(dff = diff(range(cumulative_sum))) %>% mutate(antibiotic = i, organism = j))
       
       plot_store[[i]] <- temp
     }
