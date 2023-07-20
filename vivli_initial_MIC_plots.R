@@ -2,8 +2,9 @@
 library(data.table);library(ggplot2);library(cowplot)
 
 # SPECIFY What characteristic to look at. (Note: Must match column name)
-characteristic <- "key_source"
+characteristic <- "age_group"
 include_gender <- T # T or F. should also split by gender?
+overlapping_drugs_only <- T # T or F
 
 # after specified the two above items, can just run the whole script and it will 
 # generate the desired plots
@@ -11,6 +12,7 @@ include_gender <- T # T or F. should also split by gender?
 
 # read in the data
 full_data <- as.data.table(read.csv("data/full_data.csv"))
+source("overlapping_drugs.R")
 # make sure there's a folder to store the plots
 dir.create(file.path("plots"), showWarnings = FALSE)
 index_store <- c()
@@ -21,7 +23,11 @@ if(include_gender == F){
     data_sub <- full_data[organism == j]
     
     # vector for storing relevant drugs and plots
-    drugs <- unique(data_sub$antibiotic)
+    if(overlapping_drugs_only == F){
+      drugs <- unique(data_sub$antibiotic)
+    } else {drugs <- drugs_in_both}
+    drugs <- sort(drugs)
+    
     plot_store <- list()
     
     #for each of the relevant drugs
@@ -75,7 +81,12 @@ if(include_gender == T){
     
     data_sub <- full_data[organism == j]
     # vector for storing relevant drugs and plots
-    drugs <- unique(data_sub$antibiotic)
+    # vector for storing relevant drugs and plots
+    if(overlapping_drugs_only == F){
+      drugs <- unique(data_sub$antibiotic)
+    } else {drugs <- drugs_in_both}
+    drugs <- sort(drugs)
+    
     plot_store <- list()
     
     #for each of the relevant drugs
@@ -110,7 +121,7 @@ if(include_gender == T){
           theme_linedraw() 
       }
       ## Explore index
-      index_store <- rbind(index_store, for_plot %>% group_by(MIC) %>% mutate(dff = diff(range(cumulative_sum))) %>% mutate(antibiotic = i, organism = j))
+      index_store <- rbind(index_store, for_plot %>% group_by(MIC, gender) %>% mutate(dff = diff(range(cumulative_sum))) %>% mutate(antibiotic = i, organism = j))
       
       plot_store[[i]] <- temp
     }

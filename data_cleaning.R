@@ -330,13 +330,25 @@ full_data[antibiotic == "ipm_mic", antibiotic := "imipenem"]
 full_data[antibiotic == "lvx_mic", antibiotic := "levofloxacin"]
 full_data[antibiotic == "mem_mic", antibiotic := "meropenem"]
 full_data[antibiotic == "mi_mic", antibiotic := "minocycline"]
-full_data[antibiotic == "sxt_mic", antibiotic := "trimethoprim-sulfamethoxazole"]
+full_data[antibiotic == "sxt_mic", antibiotic := "trimethoprim sulfamethoxazole"]
 full_data[antibiotic == "tim_mic", antibiotic := "ticarcillin-clavulanic acid"]
-full_data[antibiotic == "tzp_mic", antibiotic := "piperacillin-tazobactam"]
+full_data[antibiotic == "tzp_mic", antibiotic := "piperacillin tazobactam"]
 # check them
 unique(full_data$antibiotic)
 # rename some other weird ones
-full_data[antibiotic == "piperacillin-\r\ntazobactam", antibiotic := "piperacillin-tazobactam"]
+full_data[antibiotic == "piperacillin-\r\ntazobactam", antibiotic := "piperacillin tazobactam"]
+full_data[antibiotic == "piperacillin-tazobactam", antibiotic := "piperacillin tazobactam"]
+full_data[antibiotic == "ceftazidime/ avibactam", antibiotic := "ceftazidime avibactam"]
+full_data[antibiotic == "ceftolozane/ tazobactam", antibiotic := "ceftolozane tazobactam"]
+full_data[antibiotic == "imipenem/ relebactam", antibiotic := "imipenem relebactam"]
+full_data[antibiotic == "ampicillin/ sulbactam", antibiotic := "ampicillin sulbactam"]
+full_data[antibiotic == "aztreonam/ avibactam", antibiotic := "aztreonam avibactam"]
+full_data[antibiotic == "meropenem/ vaborbactam at 8", antibiotic := "meropenem vaborbactam"]
+full_data[antibiotic == "imipenem/ relebactam", antibiotic := "imipenem relebactam"]
+full_data[antibiotic == "trimethoprim_sulfa", antibiotic := "trimethoprim sulfa"]
+full_data[antibiotic == "trimethoprim-sulfamethoxazole", antibiotic := "trimethoprim sulfa"]
+full_data[antibiotic == "trimethoprim/ sulfamethoxazole", antibiotic := "trimethoprim sulfa"]
+
 # other ones I'm not sure about: "dha", "cmy11", "actmir", but they're only 3,24 and 3 of them for non-standard bugs, so fine to ignore? GK: yup ignore
 
 ### Focus
