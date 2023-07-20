@@ -5,26 +5,24 @@ theme_set(theme_bw())
 characteristic <- "age_group"
 
 # read in the data
-index_comparison_gender <- rbind(read_csv(paste0("plots/gender_Escherichia coli_",characteristic,"index_store.csv")),
-                          read_csv(paste0("plots/gender_Klebsiella pneumoniae_",characteristic,"index_store.csv")),
-                          read_csv(paste0("plots/gender_Staphylococcus aureus_",characteristic,"index_store.csv")))
+index_comparison_gender <-read_csv(paste0("plots/gender_",characteristic,"index_store.csv"))
+                          
+index_comparison <- read_csv(paste0("plots/",characteristic,"index_store.csv"))
 
-index_comparison <- rbind(read_csv(paste0("plots/Escherichia coli_",characteristic,"index_store.csv")),
-                                 read_csv(paste0("plots/Klebsiella pneumoniae_",characteristic,"index_store.csv")),
-                                 read_csv(paste0("plots/Staphylococcus aureus_",characteristic,"index_store.csv")))
+sum_index_gender <- index_comparison_gender %>% 
+  group_by(antibiotic, organism, gender) %>% 
+  summarise(mx = max(abs(dff)), n_big = sum(dff > 0.2)) 
+sum_index <- index_comparison %>% group_by(antibiotic, organism) %>% summarise(mx = max(dff), n_big = sum(dff > 0.2)) 
 
-sum_index_gender <- index_comparison_gender %>% group_by(antibiotic, organism, gender) %>% summarise(mx = max(dff)) 
-sum_index <- index_comparison %>% group_by(antibiotic, organism) %>% summarise(mx = max(dff)) 
-
-g1 <- ggplot(sum_index_gender, aes(x=antibiotic, y = mx, group = interaction(organism, gender))) + geom_point(aes(col = organism, pch = gender)) + 
-  theme(axis.text.x = element_text(angle = 90)) + 
+g1 <- ggplot(sum_index_gender %>% filter(n_big > 3), aes(x=antibiotic, y = mx, group = interaction(organism, gender))) + geom_point(aes(col = organism, pch = gender)) + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) + 
   geom_hline(yintercept = mean(sum_index$mx)) + 
   geom_hline(yintercept = quantile(sum_index$mx)[2], lty = "dashed") + geom_hline(yintercept = quantile(sum_index$mx)[4], lty = "dashed")+ 
   ggtitle(characteristic) + 
   scale_y_continuous("Maximum difference in MIC\nacross groupings")
 
-g2 <- ggplot(sum_index, aes(x=antibiotic, y = mx, group = organism)) + geom_point(aes(col = organism)) + 
-  theme(axis.text.x = element_text(angle = 90)) + 
+g2 <- ggplot(sum_index %>% filter(n_big > 3), aes(x=antibiotic, y = mx, group = organism)) + geom_point(aes(col = organism)) + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) + 
   geom_hline(yintercept = mean(sum_index$mx)) + 
   geom_hline(yintercept = quantile(sum_index$mx)[2], lty = "dashed") + geom_hline(yintercept = quantile(sum_index$mx)[4], lty = "dashed") + 
   scale_y_continuous("Maximum difference in MIC\nacross groupings")
