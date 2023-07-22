@@ -3,23 +3,29 @@ library(data.table);library(ggplot2);library(cowplot)
 
 # read in the data
 full_data <- as.data.table(read.csv("data/full_data.csv"))
+source("overlapping_drugs.R")
 
-# SPECIFY What characteristic to look at. (Note: Must match column name)
-characteristic <- "key_source" # "age_group"
-include_gender <- T # T or F. should also split by gender?
+######*********************** SPECIFY ************************#################
+## What characteristic to look at. (Note: Must match column name)
+characteristic <- "age_group" #"key_source" # "age_group"
+# should also split by gender?
+include_gender <- T # T or F. 
+# just overlapping drugs in all 
 overlapping_drugs_only <- T # T or F
 
+######*********************** RUN ************************#################
 # after specified the two above items, can just run the whole script and it will 
 # generate the desired plots
 
-source("overlapping_drugs.R")
+
 # make sure there's a folder to store the plots
 dir.create(file.path("plots"), showWarnings = FALSE)
 index_store <- c()
+output_plot <- c()
 
 # Look at patterns in three bacteria with or without gender
 if(include_gender == F){
-  for(j in c("Staphylococcus aureus", "Escherichia coli", "Klebsiella pneumoniae")){
+  for(j in c("Staphylococcus aureus", "Escherichia coli", "Klebsiella pneumoniae", "Pseudomonas aeruginosa")){
     data_sub <- full_data[organism == j]
     
     # vector for storing relevant drugs and plots
@@ -60,6 +66,8 @@ if(include_gender == F){
           scale_x_log10() + 
           theme_linedraw() 
       }
+      ### Output 
+      output_plot <- rbind(output_plot, for_plot %>% mutate(antibiotic = i, organism = j))
       
       ## Explore index
       index_store <- rbind(index_store, for_plot %>% group_by(MIC) %>% mutate(dff = diff(range(cumulative_sum))) %>% mutate(antibiotic = i, organism = j))
@@ -74,11 +82,12 @@ if(include_gender == F){
     
   }
   write.csv(index_store, paste0("plots/",characteristic, "index_store.csv"))
+  write.csv(output_plot, paste0("plots/",characteristic, "output.csv"))
 }
 
 if(include_gender == T){
   # look at just one bug for now (might loop this later!)
-  for(j in c("Staphylococcus aureus", "Escherichia coli", "Klebsiella pneumoniae")){
+  for(j in c("Staphylococcus aureus", "Escherichia coli", "Klebsiella pneumoniae", "Pseudomonas aeruginosa")){
     
     data_sub <- full_data[organism == j]
     # vector for storing relevant drugs and plots
@@ -121,6 +130,9 @@ if(include_gender == T){
           scale_x_log10() + 
           theme_linedraw() 
       }
+      ### Output 
+      output_plot <- rbind(output_plot, for_plot %>% mutate(antibiotic = i, organism = j))
+      
       ## Explore index
       index_store <- rbind(index_store, for_plot %>% group_by(MIC, gender) %>% mutate(dff = diff(range(cumulative_sum))) %>% mutate(antibiotic = i, organism = j))
       
@@ -133,4 +145,5 @@ if(include_gender == T){
     
   }
   write.csv(index_store, paste0("plots/gender_",characteristic, "index_store.csv"))
+  write.csv(output_plot, paste0("plots/gender_",characteristic, "output.csv"))
 }
