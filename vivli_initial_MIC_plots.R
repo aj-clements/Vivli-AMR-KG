@@ -5,8 +5,8 @@ library(data.table);library(ggplot2);library(cowplot)
 full_data <- as.data.table(read.csv("data/full_data.csv"))
 
 # SPECIFY What characteristic to look at. (Note: Must match column name)
-characteristic <- "age_group"
-include_gender <- F # T or F. should also split by gender?
+characteristic <- "key_source" # "age_group"
+include_gender <- T # T or F. should also split by gender?
 overlapping_drugs_only <- T # T or F
 
 # after specified the two above items, can just run the whole script and it will 
