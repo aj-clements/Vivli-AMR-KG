@@ -1,4 +1,5 @@
 # Vivli initial cleaning and screening for interesting bugs
+# WITH YEAR
 library(data.table);library(ggplot2);library(cowplot)
 
 # read in the data
@@ -7,7 +8,7 @@ source("overlapping_drugs.R")
 
 ######*********************** SPECIFY ************************#################
 ## What characteristic to look at. (Note: Must match column name)
-characteristic <- "key_source" #"key_source" # "age_group"
+characteristic <- "age_group" #"key_source" # "age_group"
 # should also split by gender?
 include_gender <- T # T or F. 
 # just overlapping drugs in all 
@@ -40,25 +41,25 @@ if(include_gender == F){
     for(i in drugs){
       data_sub_drug <- data_sub[antibiotic == i]
       #count observations by subset
-      test <- data_sub_drug[, .N, by = .(mic, get(characteristic) )]
-      colnames(test) <- c("MIC", characteristic, "N")
+      test <- data_sub_drug[, .N, by = .(mic, year, get(characteristic) )]
+      colnames(test) <- c("MIC","year", characteristic, "N")
       # also need out of total observations for the age_group/gender
-      test2 <- data_sub_drug[, .N, by = .(get(characteristic))]
-      colnames(test2) <- c(characteristic, "N")
+      test2 <- data_sub_drug[, .N, by = .(get(characteristic), year)]
+      colnames(test2) <- c(characteristic,"year", "N")
       # note total number of MIC samples
       tot_samps <- sum(test2$N)
       # combine the two together so can work out proportion
-      test[test2, on = c(characteristic), Total := i.N]
+      test[test2, on = c(characteristic, "year"), Total := i.N]
       #work out proportion
       test[, prop := N/Total]
       # cumulative sum of proportion (first order)
-      test <- test[order(MIC, get(characteristic))]
-      for_plot <-test[, cumulative_sum := cumsum(prop), by = c(characteristic)]
+      test <- test[order(MIC, year, get(characteristic))]
+      for_plot <-test[, cumulative_sum := cumsum(prop), by = c("year",characteristic)]
       
       # store plot
       for_plot <- for_plot[N>100]
       if(nrow(for_plot)>0){
-        temp<- ggplot(for_plot[N>=100], aes(x= MIC, y =cumulative_sum, colour = !!sym(characteristic))) + 
+        temp<- ggplot(for_plot[N>=100], aes(x= MIC, y =cumulative_sum, colour = !!sym(characteristic), group = year)) + 
           geom_line()+
           labs(title = paste0("MIC - ", i, paste0(". Tot samples = ", tot_samps)), x = "MIC value", 
                y = paste0("cumulative proportion of samples by ", characteristic), 
@@ -78,14 +79,14 @@ if(include_gender == F){
       plot_store[[i]] <- temp
     }
     
-    tiff(paste0("plots/",j , "_", characteristic, "_MICs.tiff"), width = 2500, height = 1500)
+    tiff(paste0("plots/year_",j , "_", characteristic, "_MICs.tiff"), width = 2500, height = 1500)
     print(cowplot::plot_grid(plotlist =  plot_store) )
     dev.off()  
     
     
   }
-  write.csv(index_store, paste0("plots/",characteristic, "index_store.csv"))
-  write.csv(output_plot, paste0("plots/",characteristic, "output.csv"))
+  write.csv(index_store, paste0("plots/year_",characteristic, "index_store.csv"))
+  write.csv(output_plot, paste0("plots/year_",characteristic, "output.csv"))
 }
 
 if(include_gender == T){
@@ -106,20 +107,20 @@ if(include_gender == T){
     for(i in drugs){
       data_sub_drug <- data_sub[antibiotic == i]
       #count observations by subset
-      test <- data_sub_drug[, .N, by = .(gender, mic, get(characteristic) )]
-      colnames(test) <- c("gender","MIC", characteristic, "N")
+      test <- data_sub_drug[, .N, by = .(gender, mic, year, get(characteristic) )]
+      colnames(test) <- c("gender","MIC","year", characteristic, "N")
       # also need out of total observations for the age_group/gender
-      test2 <- data_sub_drug[, .N, by = .(gender, get(characteristic))]
-      colnames(test2) <- c("gender",characteristic, "N")
+      test2 <- data_sub_drug[, .N, by = .(gender, year, get(characteristic))]
+      colnames(test2) <- c("gender","year",characteristic, "N")
       # note total number of MIC samples
       tot_samps <- sum(test2$N)
       # combine the two together so can work out proportion
-      test[test2, on = c(characteristic, "gender"), Total := i.N]
+      test[test2, on = c(characteristic, "gender","year"), Total := i.N]
       #work out proportion
       test[, prop := N/Total]
       # cumulative sum of proportion (first order)
-      test <- test[order(MIC, gender,  get(characteristic))]
-      for_plot <-test[, cumulative_sum := cumsum(prop), by = c("gender", characteristic)]
+      test <- test[order(MIC, gender, year, get(characteristic))]
+      for_plot <-test[, cumulative_sum := cumsum(prop), by = c("gender","year", characteristic)]
       
       # store plot
       
@@ -140,16 +141,16 @@ if(include_gender == T){
       if(characteristic == "key_source"){
         for_plot <- for_plot %>% filter(!key_source == "") # remove this from index comparison
       }
-      index_store <- rbind(index_store, for_plot %>% group_by(MIC, gender) %>% mutate(dff = diff(range(cumulative_sum))) %>% mutate(antibiotic = i, organism = j))
+      index_store <- rbind(index_store, for_plot %>% group_by(MIC,year, gender) %>% mutate(dff = diff(range(cumulative_sum))) %>% mutate(antibiotic = i, organism = j))
       
       plot_store[[i]] <- temp
     }
     
-    tiff(paste0("plots/gender_",j , "_", characteristic, "_MICs.tiff"), width = 2500, height = 1500)
+    tiff(paste0("plots/year_gender_",j , "_", characteristic, "_MICs.tiff"), width = 2500, height = 1500)
     print(cowplot::plot_grid(plotlist =  plot_store) )
     dev.off()  
     
   }
-  write.csv(index_store, paste0("plots/gender_",characteristic, "index_store.csv"))
-  write.csv(output_plot, paste0("plots/gender_",characteristic, "output.csv"))
+  write.csv(index_store, paste0("plots/year_gender_",characteristic, "index_store.csv"))
+  write.csv(output_plot, paste0("plots/year_gender_",characteristic, "output.csv"))
 }
