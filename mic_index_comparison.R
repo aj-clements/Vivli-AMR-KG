@@ -2,7 +2,7 @@
 library(tidyverse);library(ggplot2);library(cowplot); library(patchwork)
 theme_set(theme_bw())
 
-characteristic <- "age_group" #"age_group" # "key_source"
+characteristic <- "key_source" #"age_group" # "key_source"
 
 # read in the data
 index_comparison_gender <-read_csv(paste0("plots/gender_",characteristic,"index_store.csv"))
