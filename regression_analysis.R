@@ -15,10 +15,10 @@ sub_data <- full_data[antibiotic == target_antibiotic &
 
 # make children the base age group 
 sub_data$age_group <- factor(sub_data$age_group, levels = c(
-  "3 to 12 Years", 
-  "0 to 2 Years",
-   "13 to 18 Years",
   "19 to 64 Years", 
+  "0 to 2 Years",
+  "3 to 12 Years", 
+   "13 to 18 Years",
    "65 to 84 Years", 
    "85 and Over"
   
@@ -30,8 +30,21 @@ add_to_make_0 <- -min(unique(sub_data$mic_cat_all))
 sub_data[, mic_cat_all := factor(add_to_make_0 + round(log(mic)/log(2)))]
 
 # try running a proportional odds ordinal model
-ord_mod <- polr(mic_cat_all ~ age_group + gender  + key_source + year, data = sub_data)
+ord_mod <- polr(mic_cat_all ~ age_group + gender  + key_source , data = sub_data)
 summary(ord_mod)
 
-model_parameters <- summary(ord_mod)[1]$coefficients
-print(model_parameters)
+summary_table <- coef(summary(ord_mod))
+pval <- pnorm(abs(summary_table[, "t value"]),lower.tail = FALSE)* 2
+summary_table <- cbind(summary_table, "p value" = round(pval,3))
+summary_table <- as.data.frame(summary_table)
+summary_table$parameter <- rownames(summary_table)
+summary_table <- data.table(summary_table)
+summary_table[, Odds := exp(Value)]
+
+summary_table <- summary_table[1:11,c("parameter", "Value", "Std. Error", "p value", "Odds")]
+
+summary_table$Value <- round(summary_table$Value, 3)
+summary_table$`Std. Error` <- round(summary_table$`Std. Error`, 3)
+summary_table$Odds <- round(summary_table$Odds, 3)
+write.csv(summary_table, file = paste0("regresssion_coefficients_", target_antibiotic, 
+                                       "_", target_bug,".csv"))
