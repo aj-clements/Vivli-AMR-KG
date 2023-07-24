@@ -1,6 +1,6 @@
 # Minimum Inhibitory Concentration Analysis by Group (MICAG) Data Challenge
 
-This repo contains the tool for looking at MICAG, as well as all the code to reproduce the analysis in the Data Challenge report. 
+This repo contains the tool for looking at MICAG, as well as all the code to reproduce the analysis in the Data Challenge report. Note: the original data is not present in the repo and must be accessed through Vivli: https://vivli.org/
 
 Main scripts are: 
 
