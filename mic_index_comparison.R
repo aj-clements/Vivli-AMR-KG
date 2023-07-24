@@ -108,6 +108,7 @@ ggplot(sum_index_gender_yr,
 
 # heat map
 gg <- sum_index_gender_yr %>% filter(n_big > 3)
-ggplot(gg, aes(x=year, y = antibiotic, z = mx)) + geom_tile() + 
+ggplot(gg, aes(x=year, y = antibiotic, z = mx)) + 
+  geom_tile(aes(fill = mx)) + 
   facet_grid(gender~organism) + 
   ggtitle(characteristic)
