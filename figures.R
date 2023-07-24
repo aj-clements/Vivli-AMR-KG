@@ -1,5 +1,5 @@
 # Vivli figures 
-library(data.table);library(ggplot2);library(cowplot); library(patchwork)
+library(data.table);library(ggplot2);library(cowplot); library(patchwork); library(tidyverse)
 
 # read in the data
 #full_data <- as.data.table(read.csv("data/full_data.csv"))
@@ -35,7 +35,11 @@ index_data <- rbind(sum_index_gender, sum_index)
 combinations <- as.data.frame(rbind(c("Staphylococcus aureus", "levofloxacin"),
                                     c("Escherichia coli", "levofloxacin"),
                                     c("Staphylococcus aureus", "meropenem"),
-                                    c("Escherichia coli", "meropenem")))
+                                    c("Escherichia coli", "meropenem"),
+                                    c("Staphylococcus aureus", "ampicillin"),
+                                    c("Escherichia coli", "ampicillin"),
+                              c("Staphylococcus aureus", "doxycycline"),
+                              c("Escherichia coli", "doxycycline")))
 colnames(combinations) <- c("organism","antibiotic")
 
 
@@ -62,7 +66,7 @@ ggplot(plot_age %>% filter(gender == "N", MIC < 10),
        aes(x=MIC, y = cumulative_sum, group = charac_value)) + 
   geom_line(aes(col = charac_value)) + 
   facet_grid(organism ~ antibiotic, scales = "free") + 
-  scale_x_continuous("MIC") + 
+  scale_x_log10("MIC") + 
   scale_y_continuous("Cumulative sum of isolates tested") + 
   scale_color_discrete("Age group")
 ggsave("plots/fig2_age.pdf")
@@ -72,7 +76,7 @@ g1 <- ggplot(plot_age %>% filter(!gender == "N", MIC < 1),
        aes(x=MIC, y = cumulative_sum, group = interaction(gender,charac_value))) + 
   geom_line(aes(col = charac_value, lty = gender)) + 
   facet_grid(organism ~ antibiotic, scales = "free") + 
-  scale_x_continuous("MIC") + 
+  scale_x_log10("MIC") + 
   scale_y_continuous("Cumulative sum of isolates tested") + 
   scale_color_discrete("Age group") + 
   scale_linetype_discrete("Sex")
@@ -82,7 +86,7 @@ g2 <- ggplot(plot_age %>% filter(!gender == "N"),
              aes(x=MIC, y = cumulative_sum, group = interaction(gender,charac_value))) + 
   geom_line(aes(col = charac_value, lty = gender)) + 
   facet_grid(organism ~ antibiotic, scales = "free") + 
-  scale_x_continuous("MIC") + 
+  scale_x_log10("MIC") + 
   scale_y_continuous("Cumulative sum of isolates tested") + 
   scale_color_discrete("Age group") + 
   scale_linetype_discrete("Sex")
@@ -104,7 +108,7 @@ ggplot(plot_data %>% filter(charac == "key_source", gender == "N"),
        aes(x=MIC, y = cumulative_sum, group = charac_value)) + 
   geom_line(aes(col = charac_value)) + 
   facet_grid(organism ~ antibiotic, scales = "free") + 
-  scale_x_continuous("MIC") + 
+  scale_x_log10("MIC") + 
   scale_y_continuous("Cumulative sum of isolates tested") + 
   scale_color_discrete("Age group")
 ggsave("plots/fig3_source.pdf")
@@ -114,7 +118,7 @@ g1 <- ggplot(plot_data %>% filter(charac == "key_source", !charac_value == "", !
        aes(x=MIC, y = cumulative_sum, group = interaction(gender,charac_value))) + 
   geom_line(aes(col = charac_value, lty = gender)) + 
   facet_grid(organism ~ antibiotic, scales = "free") + 
-  scale_x_continuous("MIC") + 
+  scale_x_log10("MIC") + 
   scale_y_continuous("Cumulative sum of isolates tested") + 
   scale_color_discrete("Isolate source") + 
   scale_linetype_discrete("Sex")
@@ -124,7 +128,7 @@ g2 <- ggplot(plot_data %>% filter(charac == "key_source", !charac_value == "", !
        aes(x=MIC, y = cumulative_sum, group = interaction(gender,charac_value))) + 
   geom_line(aes(col = charac_value, lty = gender)) + 
   facet_grid(organism ~ antibiotic, scales = "free") + 
-  scale_x_continuous("MIC") + 
+  scale_x_log10("MIC") + 
   scale_y_continuous("Cumulative sum of isolates tested") + 
   scale_color_discrete("Isolate source") + 
   scale_linetype_discrete("Sex")
