@@ -1,4 +1,5 @@
-# Vivli figures 
+# This script creates the figures used in the report as part of the Data Challenge
+
 library(data.table);library(ggplot2);library(cowplot); library(patchwork); library(tidyverse)
 theme_set(theme_bw())
 # read in the data

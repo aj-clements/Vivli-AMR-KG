@@ -1,16 +1,13 @@
 ##### DATA explore and clean 
 
-## To do
-## - screen which datasets have MIC
-## - develop method to extract all MIC values uniformly 
-## - clean data to only those with sufficient MIC values 
+#This script is specific for this analysis. 
+# to use the tool for other data, own prep of data must be done
 
 ## Libraries
-library(tidyverse)
-library(readxl)
-library(data.table)
+library(tidyverse); library(readxl); library(data.table)
 
 ## Read in data 
+# Data inputs need to be in file called "data"
 list.files("data") # should be 6 files
 
 #####******************* Look at datasets - decide which can use ******************#################

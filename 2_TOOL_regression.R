@@ -1,30 +1,38 @@
-# regresssion analysis
-library(data.table)
-library(MASS)
+# regresssion analysis for specified drugs
+# Specify drug / bug combination to run regression analysis
+library(data.table); library(MASS)
 
+# read in data (can use alternative)
 full_data <- as.data.table(read.csv("data/full_data.csv"))
 
+
+######*********************** SPECIFY ************************#################
 # specify which bacteria and antibiotic of interest
 # NOTE - must match spelling in the data table
 target_antibiotic <- "levofloxacin"
 target_bug <- 'Staphylococcus aureus'
 
+# Specify which age group to make base age group (by putting it first)
+# Default is 19-64 years (adults)
+full_data$age_group <- factor(full_data$age_group, levels = c(
+  "19 to 64 Years", 
+  "0 to 2 Years",
+  "3 to 12 Years", 
+  "13 to 18 Years",
+  "65 to 84 Years", 
+  "85 and Over"
+  
+))
+
+######*********************** RUN ************************#################
+# after specified the two above items, can just run the whole script and it will 
+# generate teh regression and save a table with the coefficient values
+
 # subset to just look at one bug-dryg
 sub_data <- full_data[antibiotic == target_antibiotic & 
                          organism_clean == target_bug]
 
-# make children the base age group 
-sub_data$age_group <- factor(sub_data$age_group, levels = c(
-  "19 to 64 Years", 
-  "0 to 2 Years",
-  "3 to 12 Years", 
-   "13 to 18 Years",
-   "65 to 84 Years", 
-   "85 and Over"
-  
-))
-
-# convert to categorical for eah value
+# convert to categorical for each value
 sub_data[, mic_cat_all := round(log(mic)/log(2))]
 add_to_make_0 <- -min(unique(sub_data$mic_cat_all))
 sub_data[, mic_cat_all := factor(add_to_make_0 + round(log(mic)/log(2)))]
