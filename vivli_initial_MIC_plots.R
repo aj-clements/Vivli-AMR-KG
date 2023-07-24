@@ -7,7 +7,7 @@ source("overlapping_drugs.R")
 
 ######*********************** SPECIFY ************************#################
 ## What characteristic to look at. (Note: Must match column name)
-characteristic <- "age_group" #"key_source" # "age_group"
+characteristic <- "key_source" #"key_source" # "age_group"
 # should also split by gender?
 include_gender <- T # T or F. 
 # just overlapping drugs in all 
@@ -70,6 +70,9 @@ if(include_gender == F){
       output_plot <- rbind(output_plot, for_plot %>% mutate(antibiotic = i, organism = j))
       
       ## Explore index
+      if(characteristic == "key_source"){
+        for_plot <- for_plot %>% filter(!key_source == "") # remove this from index comparison
+      }
       index_store <- rbind(index_store, for_plot %>% group_by(MIC) %>% mutate(dff = diff(range(cumulative_sum))) %>% mutate(antibiotic = i, organism = j))
       
       plot_store[[i]] <- temp
@@ -134,6 +137,9 @@ if(include_gender == T){
       output_plot <- rbind(output_plot, for_plot %>% mutate(antibiotic = i, organism = j))
       
       ## Explore index
+      if(characteristic == "key_source"){
+        for_plot <- for_plot %>% filter(!key_source == "") # remove this from index comparison
+      }
       index_store <- rbind(index_store, for_plot %>% group_by(MIC, gender) %>% mutate(dff = diff(range(cumulative_sum))) %>% mutate(antibiotic = i, organism = j))
       
       plot_store[[i]] <- temp
