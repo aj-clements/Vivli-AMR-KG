@@ -46,7 +46,7 @@ for(i in 1:nrow(combinations)){
                      output_data %>% filter(organism == combinations[i,"organism"],
                                             antibiotic == combinations[i,"antibiotic"]))
   plot_index <- rbind(plot_index, 
-                      index_data %>% filter(organism == combinations[i,"organism"],
+                      output_index %>% filter(organism == combinations[i,"organism"],
                                             antibiotic == combinations[i,"antibiotic"])) 
 }
 
@@ -71,11 +71,12 @@ g1 <- ggplot(plot_age %>% filter(!gender == "N"),
   geom_line(aes(col = charac_value, lty = gender)) + 
   facet_grid(organism ~ antibiotic, scales = "free") + 
   scale_x_log10("MIC", labels = scales::comma) + 
+  ggtitle("Age and Sex") + 
   scale_y_continuous("Cumulative sum of isolates tested") + 
   scale_color_discrete("Age group") + 
   scale_linetype_discrete("Sex", labels = c("Female","Male"), breaks = c("f","m")) + 
   theme(legend.position = "bottom", strip.text = element_text(face = "italic"))
-ggsave("plots/fig2_age_sex.pdf")
+ggsave("plots/age_sex.pdf")
 
 
 g2 <- ggplot(output_index %>% filter(charac == "age_group",n_big > 3),
@@ -88,7 +89,7 @@ g2 <- ggplot(output_index %>% filter(charac == "age_group",n_big > 3),
   scale_shape_discrete("Sex",breaks = c("f","m","N"), labels = c("Female","Male","Both")) + 
   geom_vline(xintercept = c(0.1,0.2,0.3), lty = "dashed") + 
   theme(legend.text = element_text(face = "italic"))
-ggsave("plots/fig2_index_age_sex.pdf")
+ggsave("plots/index_age_sex.pdf")
 
 ######################## Source
 ggplot(plot_data %>% filter(charac == "key_source", gender == "N"), 
@@ -98,7 +99,7 @@ ggplot(plot_data %>% filter(charac == "key_source", gender == "N"),
   scale_x_log10("MIC") + 
   scale_y_continuous("Cumulative sum of isolates tested") + 
   scale_color_discrete("Age group")
-ggsave("plots/fig3_source.pdf")
+ggsave("plots/source.pdf")
 
 # Source and gender 
 g3 <- ggplot(plot_data %>% filter(charac == "key_source", !charac_value == "", !gender == "N"), 
@@ -106,6 +107,7 @@ g3 <- ggplot(plot_data %>% filter(charac == "key_source", !charac_value == "", !
   geom_line(aes(col = charac_value, lty = gender)) + 
   facet_grid(organism ~ antibiotic, scales = "free") + 
   scale_x_log10("MIC") + 
+  ggtitle("Source") + 
   scale_y_continuous("Cumulative sum of isolates tested") + 
   scale_color_discrete("Isolate source") + 
   scale_linetype_discrete("Sex", labels = c("Female","Male"), breaks = c("f","m")) + 

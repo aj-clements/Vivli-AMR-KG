@@ -8,9 +8,9 @@ source("overlapping_drugs.R")
 
 ######*********************** SPECIFY ************************#################
 ## What characteristic to look at. (Note: Must match column name)
-characteristic <- "key_source" #"key_source" # "age_group"
+characteristic <- "age_group" #"key_source" # "age_group"
 # should also split by gender?
-include_gender <- F # T or F. 
+include_gender <- T # T or F. 
 # just overlapping drugs in all 
 overlapping_drugs_only <- T # T or F
 
