@@ -68,7 +68,7 @@ ggplot(plot_age %>% filter(gender == "N"),
   scale_x_log10("MIC", labels = scales::comma) + 
   scale_y_continuous("Cumulative sum of isolates tested") + 
   scale_color_discrete("Age group")
-ggsave("plots/fig2_age.pdf")
+ggsave("plots/age_only.pdf")
 
 # Age and gender 
 g1 <- ggplot(plot_age %>% filter(!gender == "N"), 
@@ -144,6 +144,11 @@ b <- g1 + g3 + plot_layout(guides = "collect") & theme(legend.position = "bottom
 a / b + plot_layout(heights = c(1, 1.8))
 ggsave("plots/fig2_v2.pdf", width = 20, height = 11)
 
+### Figure for index graphic
+
+
+
+
 ###### Final figure 
 ##### OVER TIME: OPTIONAL
 # read in the data
@@ -183,6 +188,8 @@ for(i in 1:nrow(combinations)){
 }
 
 # Index 
+### Over time: for MICAG analysis most interested in age_group comparisons with time
+characteristic <- "age_group"
 index_comparison_gender_yr <-read_csv(paste0("plots/year_gender_",characteristic,"index_store.csv"))
 
 # Explore data: how many high level and extract max level over time 
@@ -203,7 +210,7 @@ ggplot(gg, aes(x=year, y = antibiotic, z = mx)) +
   theme(strip.text = element_text(face = "italic"))
 ggsave(paste0("plots/", characteristic, "index_time_heat_map_allbac.pdf"), height = 7, width = 15)
 
-ggplot(gg %>% filter(organism %in% c("Staphylococcus aureus","Escherichia coli")), aes(x=year, y = antibiotic, z = mx)) + 
+g1t <- ggplot(gg %>% filter(organism %in% c("Staphylococcus aureus","Escherichia coli")), aes(x=year, y = antibiotic, z = mx)) + 
   geom_tile(aes(fill = mx)) + 
   facet_grid(gender~organism) + 
   ggtitle(characteristic) + 
@@ -214,17 +221,17 @@ ggsave(paste0("plots/", characteristic, "index_time_heat_map.pdf"), height = 7, 
 ## Over time 
 plot_datat_staphlevo <- plot_datat %>% filter(antibiotic == "levofloxacin",
                                               organism == "Staphylococcus aureus", 
-                                              charac == "age_group") %>%
+                                              charac == characteristic) %>%
   ungroup %>% 
   group_by(gender, MIC, charac_value) %>% mutate(total_iso = sum(Total))
 
-ggplot(plot_datat_staphlevo %>% filter(total_iso > 1000), 
+g2t <- ggplot(plot_datat_staphlevo %>% filter(total_iso > 1000), 
        aes(x = year, y = cumulative_sum, colour = charac_value, 
            group = interaction(gender, charac_value))) + 
   geom_line(aes(linetype = factor(gender))) + 
   facet_wrap(~MIC) + 
   scale_x_log10()
-ggsave(paste0("plots/", characteristic, "index_time_heat_map.pdf"), height = 7, width = 15)
+ggsave(paste0("plots/", characteristic, "time_cumulative.pdf"), height = 7, width = 15)
 
 ggplot(plot_datat_staphlevo %>% filter(total_iso > 10000), 
        aes(x = year, y = cumulative_sum, colour = charac_value, 
@@ -233,4 +240,6 @@ ggplot(plot_datat_staphlevo %>% filter(total_iso > 10000),
   facet_wrap(~MIC) + 
   scale_x_log10()
 
+g1t + g2t
+ggsave(paste0("plots/", characteristic, "time_figure.pdf"), height = 7, width = 15)
 
