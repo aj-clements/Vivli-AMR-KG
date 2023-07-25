@@ -1,10 +1,9 @@
-# regresssion analysis for specified drugs
+##### MICAG regression analysis for specified drugs
 # Specify drug / bug combination to run regression analysis
 library(data.table); library(MASS)
 
 # read in data (can use alternative)
 full_data <- as.data.table(read.csv("data/full_data.csv"))
-
 
 ######*********************** SPECIFY ************************#################
 # specify which bacteria and antibiotic of interest
@@ -21,12 +20,11 @@ full_data$age_group <- factor(full_data$age_group, levels = c(
   "13 to 18 Years",
   "65 to 84 Years", 
   "85 and Over"
-  
 ))
 
 ######*********************** RUN ************************#################
 # after specified the two above items, can just run the whole script and it will 
-# generate teh regression and save a table with the coefficient values
+# generate the regression and save a table with the coefficient values
 
 # subset to just look at one bug-dryg
 sub_data <- full_data[antibiotic == target_antibiotic & 

@@ -1,19 +1,18 @@
-
-# Tool for screening and plotting MIC tools by sub_group
+##### MICAG Tool for screening and plotting MIC tools by sub_group
 # WITH YEAR
 library(data.table);library(ggplot2);library(cowplot)
 
 # read in the data
 # option to load in own data here. Must be same format. 
 full_data <- as.data.table(read.csv("data/full_data.csv"))
-# this reads in drugs that overlap across in e.coli and staph. Not required (then run all) or can create own list of drugs
+# this reads in drugs that overlap across e.coli and staph. Not required (then run all) or can create own list of drugs
 source("overlapping_drugs.R")
 # specify which bugs are of interest
-bugs_to_use <- c("Staphylococcus aureus", "Escherichia coli", "Klebsiella pneumoniae", "Pseudomonas aeruginosa")
+bacteria_to_use <- c("Staphylococcus aureus", "Escherichia coli", "Klebsiella pneumoniae", "Pseudomonas aeruginosa")
 
 ######*********************** SPECIFY ************************#################
 ## What characteristic to look at. (Note: Must match column name)
-characteristic <- "age_group" #Options in the default data are: 
+characteristic <- "key_source" #Options in the default data are: 
 #"key_source" # "age_group" # country # income_grp #who_region
 
 # Should the data also be split by sex? Or only by the characteristic defined above? 
@@ -33,7 +32,7 @@ output_plot <- c()
 
 # Look at patterns in three bacteria with or without gender
 if(include_gender == F){
-  for(j in c("Staphylococcus aureus", "Escherichia coli", "Klebsiella pneumoniae", "Pseudomonas aeruginosa")){
+  for(j in bacteria_to_use){
     data_sub <- full_data[organism == j]
     
     # vector for storing relevant drugs and plots
@@ -97,8 +96,7 @@ if(include_gender == F){
 }
 
 if(include_gender == T){
-  # look at just one bug for now (might loop this later!)
-  for(j in c("Staphylococcus aureus", "Escherichia coli", "Klebsiella pneumoniae", "Pseudomonas aeruginosa")){
+  for(j in bacteria_to_use){
     
     data_sub <- full_data[organism == j]
     # vector for storing relevant drugs and plots
