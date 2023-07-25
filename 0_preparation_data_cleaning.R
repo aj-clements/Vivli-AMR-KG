@@ -1,6 +1,6 @@
 ##### DATA explore and clean 
 
-#This script is specific for this analysis. 
+#This script is specific for the MICAG analysis. 
 # to use the tool for other data, own prep of data must be done
 
 ## Libraries
@@ -14,13 +14,12 @@ list.files("data") # should be 6 files
 ###### (1) ATLAS
 atlas <- read_csv("data/2023_06_15 atlas_antibiotics.csv")
 colnames(atlas) # metadata and antibiotic MIC eg age gender, source, country, in/out patient
-unique(atlas$Year) # latest data from 2021! 
+unique(atlas$Year) # latest data from 2021 
 
 table(atlas$Speciality)
 table(atlas$Study)
 
 ### Explore antibiotic data 
-# NRW: did you do this for all and just keep some? Or why these ones?
 unique(atlas$Amikacin)
 # Some data are logicals: no MIC, remove
 unique(atlas$Gatifloxacin)
@@ -74,11 +73,11 @@ gsk_clean <- rename(gsk_clean, "organism" = "organismname")
 
 ###### (4) Omadacycline
 oma <- readxl::read_excel("data/Omadacycline_2014_to_2022_Surveillance_data.xlsx")
-colnames(oma) # Age and Gender in there, alongside 
+colnames(oma) # Age and Gender in there
 head(oma)
 dim(oma) # big: 83209
 table(oma$Gender)
-table(oma$Age) # good range! ### THHERE ARE AGES ABOVE 248!!! 
+table(oma$Age) # good range but there are ages above 248? removed later
 table(oma$`CF Patient`) # info on ~4000: 3738 CF patients
 table(oma$Country) # Global
 table(oma$Organism) # lots
@@ -126,7 +125,6 @@ sidero$`Ceftolozane/ Tazobactam`<- as.character(sidero$`Ceftolozane/ Tazobactam`
 sidero$Cefepime<- as.character(sidero$Cefepime) # make characters to harmonise for now
 
 # Pivot longer to explore ranges in MIC
-
 sidero_clean <- sidero %>% pivot_longer(cols = `Cefiderocol`:`Imipenem/ Relebactam`, values_to = "mic", names_to = "antibiotic") %>% 
   filter(!is.na(mic), !mic == "NULL") %>% mutate(data = "sdro", age = 1000, gender = "m") # add mock data for age and gender 
 
@@ -194,7 +192,7 @@ full_data$mic <- gsub('=', '', full_data$mic)
 full_data$mic <- gsub('≤', '', full_data$mic)
 full_data$mic <- gsub('<=', '', full_data$mic)
 unique(full_data$mic)
-# still many alphanumeric: is convert to as.numeric and then filter out NAs this should work? 
+# still many alphanumeric: as convert to as.numeric and then filter out NAs this should work? 
 full_data$mic <- as.numeric(full_data$mic)
 full_data_cl <- full_data %>% filter(!is.na(mic)) 
 100*dim(full_data_cl)[1] / dim(full_data)[1] # 45% of rows removed by filtering for numeric MIC
@@ -205,7 +203,7 @@ full_data <- full_data_cl
 u <- unique(full_data$organism)
 table(full_data$organism) %>% as.data.frame() %>% 
   arrange(desc(Freq)) 
-## 4 have > 1.4M. Rest <<< 750. 
+## 4 have > 1.4M. Rest <<< 750K. 
 
 
 # S. aureus
@@ -273,7 +271,6 @@ full_data$source <- tolower(full_data$source)
 ### Key sources: 
 ## Urine / blood / respiratory / wound / gastro
 # Could add reproduction / head (ear / eys) / heart 
-
 
 # urine
 full_data[str_which(full_data$source, "urine"),"key_source"] <- "urine"
@@ -346,14 +343,12 @@ full_data[antibiotic == "trimethoprim_sulfa", antibiotic := "trimethoprim sulfa"
 full_data[antibiotic == "trimethoprim-sulfamethoxazole", antibiotic := "trimethoprim sulfa"]
 full_data[antibiotic == "trimethoprim/ sulfamethoxazole", antibiotic := "trimethoprim sulfa"]
 
-# other ones I'm not sure about: "dha", "cmy11", "actmir", but they're only 3,24 and 3 of them for non-standard bugs, so fine to ignore? GK: yup ignore
-
 ### Focus
 dim(full_data)
 dim(full_data %>% filter(!organism_clean == ""))
 
 # add income groups (world bank) and who regions
-# NOTE: venezuela is unclassified on income group! Have asssigned umic
+# NOTE: venezuela is unclassified on income group, have asssigned umic
 income_grps <- as.data.table(read_csv("income.csv"))
 who_regions <- as.data.table(read_csv("who-regions.csv"))
 # match into full data
