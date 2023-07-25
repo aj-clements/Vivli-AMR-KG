@@ -240,6 +240,6 @@ ggplot(plot_datat_staphlevo %>% filter(total_iso > 10000),
   facet_wrap(~MIC) + 
   scale_x_log10()
 
-g1t + g2t
+g1t + g2t & theme(legend.position = "bottom")
 ggsave(paste0("plots/", characteristic, "time_figure.pdf"), height = 7, width = 15)
 
