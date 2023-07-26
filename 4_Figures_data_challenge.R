@@ -25,8 +25,8 @@ for(i in characteristics){
                        output2 %>% select("gender", "MIC", "charac", "charac_value", "N", "Total", "prop", "cumulative_sum", 
                                           "antibiotic", "organism"))
   
-  ###### Index comparison 
-  index_comparison <- read.csv(paste0("plots/", i, "index.csv")) %>% mutate(charac = i) 
+  ###### Index comparison
+  index_comparison <- read.csv(paste0("plots/", i, "index.csv")) %>% mutate(charac = i)
   output_index <- rbind(output_index, index_comparison)
   
 }

@@ -7,7 +7,7 @@ Main scripts are:
 DATA CHALLENGE SPECIFIC
 - 0_preparation_data_cleaning.R : This cleans and synthesises the datasets used in the Data Challenge. Must be run first in order to recreate the analysis.
 
-GENERALISABLE TOOL (Note: these must be run in the order 1a, 2, 3. 1b is optional)
+GENERALISABLE TOOL (Note: these must be run in the order 1a,1b, 2, 3.)
 - 1a_TOOL_screening_plots.R : Creates MIC distribution plots by Group for specified characteristics and bacteria/antibiotic combinations.
 - 1b_TOOL_screening_plots_time.R : As above, but includes the extra dimension of time.
 - 2_TOOL_regression.R : Runs the regresssion analysis to check for confounders on the specified bacteria/antibiotic combination.

@@ -9,16 +9,20 @@ bacteria_to_use <- c("Staphylococcus aureus", "Escherichia coli", "Klebsiella pn
 
 ######*********************** SPECIFY ************************#################
 ## What characteristic to look at. (Note: Must match column name)
-characteristic <- "age_group" #Options in the default data are: 
+characteristics <- c("age_group", "key_source") #Can run additional options: 
 #"key_source" # "age_group" # country # income_grp #who_region
+#
 
 # Should the data also be split by sex? Or only by the characteristic defined above? 
-include_gender <- T # T or F. 
+include_gender_options <- c(T, F) # T or F. 
 
 ######*********************** RUN ************************#################
 # after specified the items above, just run the whole script and it will 
 # generate the desired plots in a sub-folder called plots, as well as generating values for the index
 
+for(characteristic in characteristics){
+  for (include_gender in include_gender_options){
+    
 
 # make sure there's a folder to store the plots
 dir.create(file.path("plots"), showWarnings = FALSE)
@@ -31,7 +35,7 @@ if(include_gender == F){
     data_sub <- full_data[organism == j]
     
     # vector for storing relevant drugs and plots
-      drugs <- unique(data_sub$antibiotic)
+    drugs <- unique(data_sub$antibiotic)
       
     drugs <- sort(drugs)
     
@@ -75,15 +79,13 @@ if(include_gender == F){
         for_plot <- for_plot %>% filter(!key_source == "") # remove this from index comparison
       }
       index_store <- rbind(index_store, for_plot %>% group_by(MIC) %>% mutate(dff = diff(range(cumulative_sum))) %>% mutate(antibiotic = i, organism = j))
-      
       plot_store[[i]] <- temp
     }
     
     tiff(paste0("plots/",j , "_", characteristic, "_MICs.tiff"), width = 2500, height = 1500)
     print(cowplot::plot_grid(plotlist =  plot_store) )
-    dev.off()  
-    
-    
+    dev.off()
+
   }
   write.csv(index_store, paste0("plots/",characteristic, "index_store.csv"))
   write.csv(output_plot, paste0("plots/",characteristic, "output.csv"))
@@ -152,4 +154,6 @@ if(include_gender == T){
   write.csv(index_store, paste0("plots/gender_",characteristic, "index_store.csv"))
   write.csv(output_plot, paste0("plots/gender_",characteristic, "output.csv"))
 
+}
+  }
 }
