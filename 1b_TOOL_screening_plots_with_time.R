@@ -11,17 +11,17 @@ bacteria_to_use <- c("Staphylococcus aureus", "Escherichia coli", "Klebsiella pn
 
 ######*********************** SPECIFY ************************#################
 ## What characteristic to look at. (Note: Must match column name)
-characteristic <- "key_source" #Options in the default data are: 
+characteristics <- c("age_group", "key_source") #Options in the default data are: 
 #"key_source" # "age_group" # country # income_grp #who_region
 
 # Should the data also be split by sex? Or only by the characteristic defined above? 
-include_gender <- T # T or F. 
-
+include_gender_options <- c(T,F) # T or F. 
 
 ######*********************** RUN ************************#################
 # after specified the two above items, can just run the whole script and it will 
 # generate the desired plots
-
+for(characteristic in characteristics){
+  for (include_gender in include_gender_options){
 
 # make sure there's a folder to store the plots
 dir.create(file.path("plots"), showWarnings = FALSE)
@@ -154,3 +154,4 @@ if(include_gender == T){
   write.csv(index_store, paste0("plots/year_gender_",characteristic, "index_store.csv"))
   write.csv(output_plot, paste0("plots/year_gender_",characteristic, "output.csv"))
 }
+}}

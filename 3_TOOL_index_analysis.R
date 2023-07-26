@@ -7,9 +7,10 @@ theme_set(theme_bw())
 # for this analysis to have inputs
 
 ## What characteristic to look at. (Note: Must match column name)
-characteristic <- "key_source" #Options in the default data are: 
+characteristics <- c("age_group", "key_source") #Options in the default data are: 
 #"key_source" # "age_group" # country # income_grp #who_region
 
+for(characteristic in characteristics){
 # read in the data
 index_comparison_gender <-read_csv(paste0("plots/gender_",characteristic,"index_store.csv"))
 index_comparison <- read_csv(paste0("plots/",characteristic,"index_store.csv"))
@@ -125,3 +126,4 @@ ggplot(gg %>% filter(organism %in% c("Staphylococcus aureus","Escherichia coli")
   theme(strip.text = element_text(face = "italic"))
 ggsave(paste0("plots/", characteristic, "index_time_heat_map.pdf"), height = 7, width = 15)
 
+}
