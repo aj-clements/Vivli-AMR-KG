@@ -4,6 +4,8 @@ library(data.table);library(ggplot2);library(cowplot); library(patchwork); libra
 theme_set(theme_bw(base_size = 16))
 # read in the data
 #full_data <- as.data.table(read.csv("data/full_data.csv"))
+#source("overlapping_drugs.R")
+
 
 # Which characteristics explored? 
 characteristics <- c("age_group", "key_source") # "age_group"
@@ -111,9 +113,9 @@ g3 <- ggplot(plot_data %>% filter(charac == "key_source", !charac_value == "", !
   geom_line(aes(col = charac_value, lty = gender)) + 
   facet_grid(organism ~ antibiotic, scales = "free") + 
   scale_x_log10("MIC") + 
-  ggtitle("Source") + 
+  ggtitle("Infection site") + 
   scale_y_continuous("Cumulative proportion of isolates tested") + 
-  scale_color_discrete("Isolate source") + 
+  scale_color_discrete("Infection site") + 
   scale_linetype_discrete("Sex", labels = c("Female","Male"), breaks = c("f","m")) + 
   theme(legend.position = "bottom", strip.text = element_text(face = "italic"))
 ggsave("plots/source_sex.pdf")
@@ -122,7 +124,7 @@ g4 <- ggplot(output_index %>% filter(charac == "key_source",n_big > 3),
              aes(y=antibiotic, x = mx, group = interaction(organism, gender))) + 
   geom_point(aes(col = organism, pch = gender), size = 3) + 
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) + 
-  ggtitle("Source") + 
+  ggtitle("Infection site") + 
   scale_color_discrete("Organism") + 
   scale_x_continuous(limits = c(0.1,0.3), "Maximum difference in MIC across groupings") + 
   scale_shape_discrete("Sex",breaks = c("f","m","N"), labels = c("Female","Male","Both")) + 
