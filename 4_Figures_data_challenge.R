@@ -1,7 +1,7 @@
 # MICAG: This script creates the figures used in the report as part of the Data Challenge
 
 library(data.table);library(ggplot2);library(cowplot); library(patchwork); library(tidyverse)
-theme_set(theme_bw())
+theme_set(theme_bw(base_size = 16))
 # read in the data
 #full_data <- as.data.table(read.csv("data/full_data.csv"))
 source("overlapping_drugs.R")
@@ -66,7 +66,7 @@ ggplot(plot_age %>% filter(gender == "N"),
   geom_line(aes(col = charac_value)) + 
   facet_grid(organism ~ antibiotic, scales = "free") + 
   scale_x_log10("MIC", labels = scales::comma) + 
-  scale_y_continuous("Cumulative sum of isolates tested") + 
+  scale_y_continuous("Cumulative proportion of isolates tested") + 
   scale_color_discrete("Age group")
 ggsave("plots/age_only.pdf")
 
@@ -77,7 +77,7 @@ g1 <- ggplot(plot_age %>% filter(!gender == "N"),
   facet_grid(organism ~ antibiotic, scales = "free") + 
   scale_x_log10("MIC", labels = scales::comma) + 
   ggtitle("Age and Sex") + 
-  scale_y_continuous("Cumulative sum of isolates tested") + 
+  scale_y_continuous("Cumulative proportion of isolates tested") + 
   scale_color_discrete("Age group") + 
   scale_linetype_discrete("Sex", labels = c("Female","Male"), breaks = c("f","m")) + 
   theme(legend.position = "bottom", strip.text = element_text(face = "italic"))
@@ -90,7 +90,7 @@ g2 <- ggplot(output_index %>% filter(charac == "age_group",n_big > 3),
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) + 
   ggtitle("Age and Sex") + 
   scale_color_discrete("Organism") + 
-  scale_x_continuous(limits = c(0,0.4),"Maximum difference in MIC across groupings") + 
+  scale_x_continuous(limits = c(0.1,0.4),"Maximum difference in MIC across groupings") + 
   scale_shape_discrete("Sex",breaks = c("f","m","N"), labels = c("Female","Male","Both")) + 
   geom_vline(xintercept = c(0.1,0.2,0.3), lty = "dashed") + 
   theme(legend.text = element_text(face = "italic"))
@@ -102,7 +102,7 @@ ggplot(plot_data %>% filter(charac == "key_source", gender == "N"),
   geom_line(aes(col = charac_value)) + 
   facet_grid(organism ~ antibiotic, scales = "free") + 
   scale_x_log10("MIC") + 
-  scale_y_continuous("Cumulative sum of isolates tested") + 
+  scale_y_continuous("Cumulative proportion of isolates tested") + 
   scale_color_discrete("Age group")
 ggsave("plots/source.pdf")
 
@@ -113,7 +113,7 @@ g3 <- ggplot(plot_data %>% filter(charac == "key_source", !charac_value == "", !
   facet_grid(organism ~ antibiotic, scales = "free") + 
   scale_x_log10("MIC") + 
   ggtitle("Source") + 
-  scale_y_continuous("Cumulative sum of isolates tested") + 
+  scale_y_continuous("Cumulative proportion of isolates tested") + 
   scale_color_discrete("Isolate source") + 
   scale_linetype_discrete("Sex", labels = c("Female","Male"), breaks = c("f","m")) + 
   theme(legend.position = "bottom", strip.text = element_text(face = "italic"))
@@ -125,27 +125,30 @@ g4 <- ggplot(output_index %>% filter(charac == "key_source",n_big > 3),
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) + 
   ggtitle("Source") + 
   scale_color_discrete("Organism") + 
-  scale_x_continuous(limits = c(0,0.4), "Maximum difference in MIC across groupings") + 
+  scale_x_continuous(limits = c(0.1,0.3), "Maximum difference in MIC across groupings") + 
   scale_shape_discrete("Sex",breaks = c("f","m","N"), labels = c("Female","Male","Both")) + 
   geom_vline(xintercept = c(0.1,0.2,0.3), lty = "dashed") + 
   theme(legend.text = element_text(face = "italic"))
 ggsave("plots/index_key_source.pdf")
 
 #### Figure 2
-a <- g2 + g4 + plot_layout(guides = "collect") 
-
-a / (g1 + g3 + plot_layout(guides = "collect") & theme(legend.position = "bottom"))
-ggsave("plots/fig2.pdf", width = 18, height = 10)
-
-### Version 2
-
 a <- g2 + g4 + plot_layout(guides = "collect") & theme(legend.position = "bottom")
 b <- g1 + g3 + plot_layout(guides = "collect") & theme(legend.position = "bottom")
-a / b + plot_layout(heights = c(1, 1.8))
-ggsave("plots/fig2_v2.pdf", width = 20, height = 11)
+a / b + plot_layout(heights = c(1, 1.8)) + plot_annotation(tag_levels = 'A')
+ggsave("plots/fig2.pdf", width = 20, height = 11)
 
 ### Figure for index graphic
-
+ggplot(plot_age %>% filter(gender == "N", antibiotic == "levofloxacin", organism == "Staphylococcus aureus"), 
+             aes(x=MIC, y = cumulative_sum, group = interaction(gender,charac_value))) + 
+  geom_point(aes(col = charac_value), size = 10, pch = "x") + 
+  geom_line(aes(col = charac_value), size = 2) + 
+  facet_grid(organism ~ antibiotic, scales = "free") + 
+  scale_x_log10("MIC", labels = scales::comma) + 
+  scale_y_continuous("Cumulative proportion of isolates tested") + 
+  scale_color_discrete("Age group") + 
+  scale_linetype_discrete("Sex", labels = c("Female","Male"), breaks = c("f","m")) + 
+  theme(legend.position = "none", strip.background = element_blank(),
+        strip.text.x = element_blank(), strip.text.y = element_blank())
 
 
 
