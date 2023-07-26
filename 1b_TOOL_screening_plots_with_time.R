@@ -5,8 +5,7 @@ library(data.table);library(ggplot2);library(cowplot)
 # read in the data
 # option to load in own data here. Must be same format. 
 full_data <- as.data.table(read.csv("data/full_data.csv"))
-# this reads in drugs that overlap across e.coli and staph. Not required (then run all) or can create own list of drugs
-source("overlapping_drugs.R")
+
 # specify which bugs are of interest
 bacteria_to_use <- c("Staphylococcus aureus", "Escherichia coli", "Klebsiella pneumoniae", "Pseudomonas aeruginosa")
 
@@ -17,8 +16,7 @@ characteristic <- "key_source" #Options in the default data are:
 
 # Should the data also be split by sex? Or only by the characteristic defined above? 
 include_gender <- T # T or F. 
-# If overlapping drugs specified, do you want to run only these are all of them? 
-overlapping_drugs_only <- T # T or F
+
 
 ######*********************** RUN ************************#################
 # after specified the two above items, can just run the whole script and it will 
@@ -36,9 +34,8 @@ if(include_gender == F){
     data_sub <- full_data[organism == j]
     
     # vector for storing relevant drugs and plots
-    if(overlapping_drugs_only == F){
       drugs <- unique(data_sub$antibiotic)
-    } else {drugs <- drugs_in_both}
+
     drugs <- sort(drugs)
     
     plot_store <- list()
@@ -101,9 +98,7 @@ if(include_gender == T){
     data_sub <- full_data[organism == j]
     # vector for storing relevant drugs and plots
     # vector for storing relevant drugs and plots
-    if(overlapping_drugs_only == F){
-      drugs <- unique(data_sub$antibiotic)
-    } else {drugs <- drugs_in_both}
+    drugs <- unique(data_sub$antibiotic)
     drugs <- sort(drugs)
     
     plot_store <- list()

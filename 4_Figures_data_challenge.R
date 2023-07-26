@@ -4,7 +4,7 @@ library(data.table);library(ggplot2);library(cowplot); library(patchwork); libra
 theme_set(theme_bw())
 # read in the data
 #full_data <- as.data.table(read.csv("data/full_data.csv"))
-source("overlapping_drugs.R")
+# source("overlapping_drugs.R")
 
 # Which characteristics explored? 
 characteristics <- c("age_group", "key_source") # "age_group"
