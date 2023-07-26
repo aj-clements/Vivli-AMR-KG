@@ -6,6 +6,7 @@ theme_set(theme_bw(base_size = 16))
 #full_data <- as.data.table(read.csv("data/full_data.csv"))
 #source("overlapping_drugs.R")
 
+
 # Which characteristics explored? 
 characteristics <- c("age_group", "key_source") # "age_group"
 
@@ -216,7 +217,7 @@ ggsave(paste0("plots/", characteristic, "index_time_heat_map_allbac.pdf"), heigh
 g1t <- ggplot(gg %>% filter(organism %in% c("Staphylococcus aureus","Escherichia coli")), aes(x=year, y = antibiotic, z = mx)) + 
   geom_tile(aes(fill = mx)) + 
   facet_grid(gender~organism) + 
-  ggtitle(characteristic) + 
+  ggtitle("A") + 
   scale_fill_continuous("Maximum\nindex") + 
   theme(strip.text = element_text(face = "italic"))
 ggsave(paste0("plots/", characteristic, "index_time_heat_map.pdf"), height = 7, width = 15)
@@ -245,4 +246,24 @@ ggplot(plot_datat_staphlevo %>% filter(total_iso > 10000),
 
 g1t + g2t & theme(legend.position = "bottom")
 ggsave(paste0("plots/", characteristic, "time_figure.pdf"), height = 7, width = 15)
+
+
+### time plot
+samples_store <- data.table(read.csv(paste0("plots/year_gender_",characteristic, "samples_store.csv")))
+
+samples_store$age_group <- factor(samples_store$age_group, 
+                                  levels = c("0 to 2 Years","3 to 12 Years", "13 to 18 Years",
+                                             "19 to 64 Years", "65 to 84 Years", "85 and Over"))
+
+g_samples <- ggplot(samples_store, aes(x=Year, y=N, fill = age_group))+
+  geom_col(col = "black")+
+  labs(x = "Year",
+       y = "Number of samples",
+       fill = "Age group", 
+       title = "B: S.aureus, levofloxacin")+
+  facet_grid(MIC~Gender) # + 
+ # theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
+
+g1t + g_samples
+ggsave(paste0("plots/", characteristic, "time2_figure.pdf"), height = 12, width = 18)
 
