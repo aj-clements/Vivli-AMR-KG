@@ -216,6 +216,7 @@ g1t <- ggplot(gg %>% filter(organism %in% c("Staphylococcus aureus","Escherichia
   geom_tile(aes(fill = mx)) + 
   facet_grid(gender~organism) + 
   ggtitle("A") + 
+  labs(x = "Year")+
   scale_fill_continuous("Maximum\nindex") + 
   theme(strip.text = element_text(face = "italic"))
 ggsave(paste0("plots/", characteristic, "index_time_heat_map.pdf"), height = 7, width = 15)
@@ -252,16 +253,17 @@ samples_store <- data.table(read.csv(paste0("plots/year_gender_",characteristic,
 samples_store$age_group <- factor(samples_store$age_group, 
                                   levels = c("0 to 2 Years","3 to 12 Years", "13 to 18 Years",
                                              "19 to 64 Years", "65 to 84 Years", "85 and Over"))
+title_to_use <- expression(paste("B: ", italic("S. aureus"), ", levofloxacin"))
 
 g_samples <- ggplot(samples_store, aes(x=Year, y=N, fill = age_group))+
   geom_col(col = "black")+
   labs(x = "Year",
        y = "Number of samples",
        fill = "Age group", 
-       title = "B: S.aureus, levofloxacin")+
+       title = title_to_use)+
   facet_grid(MIC~Gender) # + 
  # theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
 
 g1t + g_samples
-ggsave(paste0("plots/", characteristic, "time2_figure.pdf"), height = 12, width = 18)
+ggsave(paste0("plots/", characteristic, "time2_figure.pdf"), height = 12, width = 22)
 
