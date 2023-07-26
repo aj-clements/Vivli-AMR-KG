@@ -13,7 +13,7 @@ characteristic <- "age_group" #Options in the default data are:
 #"key_source" # "age_group" # country # income_grp #who_region
 
 # Should the data also be split by sex? Or only by the characteristic defined above? 
-include_gender <- F # T or F. 
+include_gender <- T # T or F. 
 
 ######*********************** RUN ************************#################
 # after specified the items above, just run the whole script and it will 
@@ -97,7 +97,7 @@ if(include_gender == T){
     # vector for storing relevant drugs and plots
     # vector for storing relevant drugs and plots
 
-      drugs <- unique(data_sub$antibiotic)}
+    drugs <- unique(data_sub$antibiotic)
     drugs <- sort(drugs)
     
     plot_store <- list()
@@ -148,8 +148,8 @@ if(include_gender == T){
     tiff(paste0("plots/gender_",j , "_", characteristic, "_MICs.tiff"), width = 2500, height = 1500)
     print(cowplot::plot_grid(plotlist =  plot_store) )
     dev.off()  
-    
-  }
+}
   write.csv(index_store, paste0("plots/gender_",characteristic, "index_store.csv"))
   write.csv(output_plot, paste0("plots/gender_",characteristic, "output.csv"))
+
 }
