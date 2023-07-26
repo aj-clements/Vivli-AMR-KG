@@ -216,9 +216,9 @@ ggsave(paste0("plots/", characteristic, "index_time_heat_map_allbac.pdf"), heigh
 g1t <- ggplot(gg %>% filter(organism %in% c("Staphylococcus aureus","Escherichia coli")), aes(x=year, y = antibiotic, z = mx)) + 
   geom_tile(aes(fill = mx)) + 
   facet_grid(gender~organism) + 
-  ggtitle(characteristic) + 
+  ggtitle("Age Group") + 
   scale_fill_continuous("Maximum\nindex") + 
-  theme(strip.text = element_text(face = "italic"))
+  theme(strip.text = element_text(face = "italic")) + 
 ggsave(paste0("plots/", characteristic, "index_time_heat_map.pdf"), height = 7, width = 15)
 
 ## Over time 
@@ -246,3 +246,14 @@ ggplot(plot_datat_staphlevo %>% filter(total_iso > 10000),
 g1t + g2t & theme(legend.position = "bottom")
 ggsave(paste0("plots/", characteristic, "time_figure.pdf"), height = 7, width = 15)
 
+
+### time plot
+samples_store <- data.table(read.csv(paste0("plots/year_gender_",characteristic, "samples_store.csv")))
+
+g_samples <- ggplot(samples_store, aes(x=Year, y=N, fill = age_group))+
+  geom_col(col = "black")+
+  labs(x = "Year",
+       y = "Number of samples",
+       fill = "Age group")+
+  facet_grid(Gender~MIC)  + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
