@@ -12,7 +12,8 @@ list.files("data") # should be 6 files
 
 #####******************* Look at datasets - decide which can use ******************#################
 ###### (1) ATLAS
-atlas <- read_csv("data/2023_06_15 atlas_antibiotics.csv")
+suppressWarnings(atlas <- read_csv("data/2023_06_15 atlas_antibiotics.csv"))
+#warnings about column types, can be ignored
 colnames(atlas) # metadata and antibiotic MIC eg age gender, source, country, in/out patient
 unique(atlas$Year) # latest data from 2021 
 
@@ -72,7 +73,8 @@ gsk_clean <- rename(gsk_clean, "year" = "yearcollected")
 gsk_clean <- rename(gsk_clean, "organism" = "organismname")
 
 ###### (4) Omadacycline
-oma <- readxl::read_excel("data/Omadacycline_2014_to_2022_Surveillance_data.xlsx")
+suppressWarnings(oma <- readxl::read_excel("data/Omadacycline_2014_to_2022_Surveillance_data.xlsx"))
+# warning about column types, can supress as dealt with later
 colnames(oma) # Age and Gender in there
 head(oma)
 dim(oma) # big: 83209
@@ -107,7 +109,7 @@ oma_clean <- rename(oma_clean, "year" = "study year")
 
 
 ###### (5) SIDERO
-sidero <- readxl::read_excel("data/Updated_Shionogi Five year SIDERO-WT Surveillance data(without strain number)_Vivli_220409.xlsx")
+suppressWarnings(sidero <- readxl::read_excel("data/Updated_Shionogi Five year SIDERO-WT Surveillance data(without strain number)_Vivli_220409.xlsx"))
 colnames(sidero) # No age and gender. Country, body location. 
 head(sidero)
 dim(sidero) # big: 47615 
@@ -136,7 +138,7 @@ sidero_clean <- rename(sidero_clean, "organism" = "organism name")
 
 
 ###### (6) Venatorx
-vena <- readxl::read_excel("data/Venatorx surveillance data for Vivli 27Feb2023.xlsx")
+suppressWarnings(vena <- readxl::read_excel("data/Venatorx surveillance data for Vivli 27Feb2023.xlsx"))
 colnames(vena) # Age and gender. Country, bodysite, facility
 head(vena)
 table(vena$BodySite)
@@ -193,7 +195,8 @@ full_data$mic <- gsub('≤', '', full_data$mic)
 full_data$mic <- gsub('<=', '', full_data$mic)
 unique(full_data$mic)
 # still many alphanumeric: as convert to as.numeric and then filter out NAs this should work? 
-full_data$mic <- as.numeric(full_data$mic)
+suppressWarnings(full_data$mic <- as.numeric(full_data$mic))
+# suppressing warning as expect NAs!
 full_data_cl <- full_data %>% filter(!is.na(mic)) 
 100*dim(full_data_cl)[1] / dim(full_data)[1] # 45% of rows removed by filtering for numeric MIC
 
@@ -243,7 +246,7 @@ full_data <- data.table(full_data)
 # ATLAS data already in age_groups: move this over
 full_data[, age_group := age]
 # Make all ages numeric (this will make nas for atls but fine as already moved to age_group)
-full_data[, age := as.numeric(age)] 
+suppressWarnings(full_data[, age := as.numeric(age)] )
 unique(full_data$age)
 full_data[ !is.na(age), age_group := "0 to 2 Years"]
 full_data[ age > 2, age_group := "3 to 12 Years"]

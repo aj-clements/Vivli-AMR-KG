@@ -77,7 +77,9 @@ for(characteristic in characteristics){
           if(characteristic == "key_source"){
             for_plot <- for_plot %>% filter(!key_source == "") # remove this from index comparison
           }
-          index_store <- rbind(index_store, for_plot %>% group_by(MIC) %>% mutate(dff = diff(range(cumulative_sum))) %>% mutate(antibiotic = i, organism = j))
+         suppressWarnings( index_store <- rbind(index_store, for_plot %>% group_by(MIC) %>%
+                                 mutate(dff = diff(range(cumulative_sum))) %>% mutate(antibiotic = i, organism = j)))
+         #warnings if no difference
           
           plot_store[[i]] <- temp
         }
@@ -141,8 +143,11 @@ for(characteristic in characteristics){
           if(characteristic == "key_source"){
             for_plot <- for_plot %>% filter(!key_source == "") # remove this from index comparison
           }
-          index_store <- rbind(index_store, for_plot %>% group_by(MIC,year, gender) %>% mutate(dff = diff(range(cumulative_sum))) %>% mutate(antibiotic = i, organism = j))
-          
+         
+          suppressWarnings(index_store <- rbind(index_store, for_plot %>% group_by(MIC,year, gender) %>% 
+                                 mutate(dff = diff(range(cumulative_sum))) %>% mutate(antibiotic = i, organism = j)))
+          # warning when no difference
+         
           plot_store[[i]] <- temp
         }
         
