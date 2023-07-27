@@ -23,6 +23,6 @@ Other files in the repo are:
 - who-regions.csv : this contains the mapping from countries to WHO regions.
 
 The TOOL can also be used with other data. In order to do this a cleaned dataset must be provided in a subfolder: data/full_data.csv
-Columns must include: gender, organism, antibiotic, mic, and any other characteristics the user wants to split the data by. The mic column must be numeric, and the other columns either character or factor. 
+Columns must include: gender, organism, antibiotic, mic, and any other characteristics the user wants to split the data by. The mic column must be numeric, and the other columns either character or factor. There may be some ggplot warnings if not all the antibiotic-bacteria combinations have all the groupings, but these can be ignored. 
 
 Packages required are: data.table, cowplot, ggplot2, MASS, tidyverse, patchwork. 
