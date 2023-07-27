@@ -84,11 +84,18 @@ g1 <- ggplot(plot_age %>% filter(!gender == "N"),
   theme(legend.position = "bottom", strip.text = element_text(face = "italic"))
 ggsave("plots/age_sex.pdf")
 
+# output_index <- data.table(output_index)
+# output_index[antibiotic == "trimethoprim sulfa", antibiotic := "trimethroprim\nsulfa"] 
+# output_index[antibiotic == "piperacillin tazobactam", antibiotic := "piperacillin\ntazobactam"]
+# output_index[antibiotic == "meropenem vaborbactam", antibiotic := "meropenem\nvaborbactam"]
+# output_index[antibiotic == "cefoperazone sulbactam", antibiotic := "piperacillin\ntazobactam"]
+# output_index[antibiotic == "ceftolozane tazobactam", antibiotic := "cefoperazone\nsulbactam"]
+
 
 g2 <- ggplot(output_index %>% filter(charac == "age_group",n_big > 3),
              aes(y=antibiotic, x = mx, group = interaction(organism, gender))) + 
   geom_point(aes(col = organism, pch = gender), size = 3) + 
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) + 
+#  theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) + 
   ggtitle("Age and Sex") + 
   scale_color_discrete("Organism") + 
   scale_x_continuous(limits = c(0.1,0.4),"Maximum difference in MIC across groupings") + 
@@ -112,8 +119,9 @@ g3 <- ggplot(plot_data %>% filter(charac == "key_source", !charac_value == "", !
              aes(x=MIC, y = cumulative_sum, group = interaction(gender,charac_value))) + 
   geom_line(aes(col = charac_value, lty = gender)) + 
   facet_grid(organism ~ antibiotic, scales = "free") + 
-  scale_x_log10("MIC") + 
+  scale_x_log10("MIC", labels = scales::comma) +
   ggtitle("Infection site") + 
+  guides(lty = "none") +
   scale_y_continuous("Cumulative proportion of isolates tested") + 
   scale_color_discrete("Infection site") + 
   scale_linetype_discrete("Sex", labels = c("Female","Male"), breaks = c("f","m")) + 
@@ -123,7 +131,7 @@ ggsave("plots/source_sex.pdf")
 g4 <- ggplot(output_index %>% filter(charac == "key_source",n_big > 3), 
              aes(y=antibiotic, x = mx, group = interaction(organism, gender))) + 
   geom_point(aes(col = organism, pch = gender), size = 3) + 
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) + 
+ # theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) + 
   ggtitle("Infection site") + 
   scale_color_discrete("Organism") + 
   scale_x_continuous(limits = c(0.1,0.3), "Maximum difference in MIC across groupings") + 
@@ -133,9 +141,31 @@ g4 <- ggplot(output_index %>% filter(charac == "key_source",n_big > 3),
 ggsave("plots/index_key_source.pdf")
 
 #### Figure 2
-a <- g2 + g4 + plot_layout(guides = "collect") & theme(legend.position = "bottom")
+a <- g2 + g4 +  theme(legend.position = "none")
 b <- g1 + g3 + plot_layout(guides = "collect") & theme(legend.position = "bottom")
 a / b + plot_layout(heights = c(1, 1.8)) + plot_annotation(tag_levels = 'A')
+# ggsave("plots/fig2.pdf", width = 20, height = 11)
+
+legend1 <- get_legend(g2 + theme(legend.position = "bottom"))
+legend2 <- get_legend(g1 + theme(legend.position = "bottom", 
+                                 legend.justification = "right"))
+legend3 <- get_legend(g3 + theme(legend.position = "bottom", legend.justification = "left", 
+                                 legend.direction = "horizontal"))
+
+
+top_plot <- plot_grid(g2 + theme(legend.position = "none") , 
+                      g4 + theme(legend.position = "none"), 
+                      labels = c("A", "B"), 
+                      ncol = 2)
+middle_plot <- plot_grid(legend, labels = "")
+bottom_plot <- plot_grid(g1 + theme(legend.position = "none") , 
+                         g3 + theme(legend.position = "none"), 
+                          labels = c("C", "D"), 
+                         ncol = 2 )
+very_bottom <- plot_grid(legend2, legend3, rel_widths = c(0.6,0.5))
+together <- plot_grid(top_plot, middle_plot, bottom_plot, very_bottom, ncol =1,
+                      rel_heights = c(1,0.1,1.4, 0.2))
+print(together)
 ggsave("plots/fig2.pdf", width = 20, height = 11)
 
 ### Figure for index graphic
