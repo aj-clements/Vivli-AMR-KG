@@ -60,11 +60,11 @@ write.csv(plot_index, paste0("plots/", characteristic, "index.csv"))
 ### Stats for report: what bacteria are in the final differences? 
 high_all <- plot_index %>% filter(n_big > 3)
 
-round(100*table(high_all%>% ungroup() %>% filter(gender == "N") %>% select(organism)) / dim(high_all%>% ungroup() %>% filter(gender == "N"))[1],0)
+round(100*table(high_all%>% ungroup() %>% filter(gender == "N") %>% dplyr::select(organism)) / dim(high_all%>% ungroup() %>% filter(gender == "N"))[1],0)
 # In men
-round(100*table(high_all %>% ungroup() %>% filter(gender == "m") %>% select(organism)) / dim(high_all %>% filter(gender=="m"))[1],0)
+round(100*table(high_all %>% ungroup() %>% filter(gender == "m") %>% dplyr::select(organism)) / dim(high_all %>% filter(gender=="m"))[1],0)
 # In women
-round(100*table(high_all %>% ungroup() %>% filter(gender == "f") %>% select(organism)) / dim(high_all %>% filter(gender=="f"))[1],0)
+round(100*table(high_all %>% ungroup() %>% filter(gender == "f") %>% dplyr::select(organism)) / dim(high_all %>% filter(gender=="f"))[1],0)
 
 ##### OVER TIME 
 # read in the data
@@ -127,3 +127,4 @@ ggplot(gg %>% filter(organism %in% c("Staphylococcus aureus","Escherichia coli")
 ggsave(paste0("plots/", characteristic, "index_time_heat_map.pdf"), height = 7, width = 15)
 
 }
+

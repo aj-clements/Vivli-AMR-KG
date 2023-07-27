@@ -21,9 +21,9 @@ for(i in characteristics){
   output1 <- read.csv(paste0("plots/gender_",i, "output.csv")) %>% mutate(charac = i) %>% rename("charac_value" = i)
   output2 <- read.csv(paste0("plots/",i, "output.csv")) %>% mutate(gender = "N", charac = i) %>% rename("charac_value" = i)
   output_data <- rbind(rbind(output_data, 
-                             output1 %>% select("gender", "MIC", "charac", "charac_value", "N", "Total", "prop", "cumulative_sum", 
+                             output1 %>% dplyr::select("gender", "MIC", "charac", "charac_value", "N", "Total", "prop", "cumulative_sum", 
                                                 "antibiotic", "organism")), 
-                       output2 %>% select("gender", "MIC", "charac", "charac_value", "N", "Total", "prop", "cumulative_sum", 
+                       output2 %>% dplyr::select("gender", "MIC", "charac", "charac_value", "N", "Total", "prop", "cumulative_sum", 
                                           "antibiotic", "organism"))
   
   ###### Index comparison
@@ -196,9 +196,9 @@ for(i in characteristics){
   output1t <- read.csv(paste0("plots/year_gender_",i, "output.csv")) %>% mutate(charac = i) %>% rename("charac_value" = i)
   output2t <- read.csv(paste0("plots/year_",i, "output.csv")) %>% mutate(gender = "N", charac = i) %>% rename("charac_value" = i)
   output_datat <- rbind(rbind(output_datat, 
-                              output1t %>% select("year","gender", "MIC", "charac", "charac_value", "N", "Total", "prop", "cumulative_sum", 
+                              output1t %>% dplyr::select("year","gender", "MIC", "charac", "charac_value", "N", "Total", "prop", "cumulative_sum", 
                                                   "antibiotic", "organism")), 
-                        output2t %>% select("year","gender", "MIC", "charac", "charac_value", "N", "Total", "prop", "cumulative_sum", 
+                        output2t %>% dplyr::select("year","gender", "MIC", "charac", "charac_value", "N", "Total", "prop", "cumulative_sum", 
                                             "antibiotic", "organism"))
 }
 
