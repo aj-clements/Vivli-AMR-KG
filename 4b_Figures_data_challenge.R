@@ -293,8 +293,8 @@ g_samples <- ggplot(samples_store, aes(x=Year, y=N, fill = age_group))+
        y = "Number of samples",
        fill = "Age group", 
        title = title_to_use)+
-  facet_grid(MIC~Gender) # + 
- # theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
+  facet_grid(MIC~Gender)  + 
+  theme(strip.text = element_text(size = 10))
 
 g1t + g_samples
 ggsave(paste0("plots/", characteristic, "time2_figure.pdf"), height = 12, width = 22)
