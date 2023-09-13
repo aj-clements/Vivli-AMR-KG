@@ -1,29 +1,26 @@
 ##### DATA explore and clean 
 
-## To do
-## - screen which datasets have MIC
-## - develop method to extract all MIC values uniformly 
-## - clean data to only those with sufficient MIC values 
+#This script is specific for the MICAG analysis. 
+# to use the tool for other data, own prep of data must be done
 
 ## Libraries
-library(tidyverse)
-library(readxl)
-library(data.table)
+library(tidyverse); library(readxl); library(data.table)
 
 ## Read in data 
+# Data inputs need to be in file called "data"
 list.files("data") # should be 6 files
 
 #####******************* Look at datasets - decide which can use ******************#################
 ###### (1) ATLAS
-atlas <- read_csv("data/2023_06_15 atlas_antibiotics.csv")
+suppressWarnings(atlas <- read_csv("data/2023_06_15 atlas_antibiotics.csv"))
+#warnings about column types, can be ignored
 colnames(atlas) # metadata and antibiotic MIC eg age gender, source, country, in/out patient
-unique(atlas$Year) # latest data from 2021! 
+unique(atlas$Year) # latest data from 2021 
 
 table(atlas$Speciality)
 table(atlas$Study)
 
 ### Explore antibiotic data 
-# NRW: did you do this for all and just keep some? Or why these ones?
 unique(atlas$Amikacin)
 # Some data are logicals: no MIC, remove
 unique(atlas$Gatifloxacin)
@@ -76,12 +73,13 @@ gsk_clean <- rename(gsk_clean, "year" = "yearcollected")
 gsk_clean <- rename(gsk_clean, "organism" = "organismname")
 
 ###### (4) Omadacycline
-oma <- readxl::read_excel("data/Omadacycline_2014_to_2022_Surveillance_data.xlsx")
-colnames(oma) # Age and Gender in there, alongside 
+suppressWarnings(oma <- readxl::read_excel("data/Omadacycline_2014_to_2022_Surveillance_data.xlsx"))
+# warning about column types, can supress as dealt with later
+colnames(oma) # Age and Gender in there
 head(oma)
 dim(oma) # big: 83209
 table(oma$Gender)
-table(oma$Age) # good range! ### THHERE ARE AGES ABOVE 248!!! 
+table(oma$Age) # good range but there are ages above 248? removed later
 table(oma$`CF Patient`) # info on ~4000: 3738 CF patients
 table(oma$Country) # Global
 table(oma$Organism) # lots
@@ -111,7 +109,7 @@ oma_clean <- rename(oma_clean, "year" = "study year")
 
 
 ###### (5) SIDERO
-sidero <- readxl::read_excel("data/Updated_Shionogi Five year SIDERO-WT Surveillance data(without strain number)_Vivli_220409.xlsx")
+suppressWarnings(sidero <- readxl::read_excel("data/Updated_Shionogi Five year SIDERO-WT Surveillance data(without strain number)_Vivli_220409.xlsx"))
 colnames(sidero) # No age and gender. Country, body location. 
 head(sidero)
 dim(sidero) # big: 47615 
@@ -129,7 +127,6 @@ sidero$`Ceftolozane/ Tazobactam`<- as.character(sidero$`Ceftolozane/ Tazobactam`
 sidero$Cefepime<- as.character(sidero$Cefepime) # make characters to harmonise for now
 
 # Pivot longer to explore ranges in MIC
-
 sidero_clean <- sidero %>% pivot_longer(cols = `Cefiderocol`:`Imipenem/ Relebactam`, values_to = "mic", names_to = "antibiotic") %>% 
   filter(!is.na(mic), !mic == "NULL") %>% mutate(data = "sdro", age = 1000, gender = "m") # add mock data for age and gender 
 
@@ -141,7 +138,7 @@ sidero_clean <- rename(sidero_clean, "organism" = "organism name")
 
 
 ###### (6) Venatorx
-vena <- readxl::read_excel("data/Venatorx surveillance data for Vivli 27Feb2023.xlsx")
+suppressWarnings(vena <- readxl::read_excel("data/Venatorx surveillance data for Vivli 27Feb2023.xlsx"))
 colnames(vena) # Age and gender. Country, bodysite, facility
 head(vena)
 table(vena$BodySite)
@@ -197,8 +194,9 @@ full_data$mic <- gsub('=', '', full_data$mic)
 full_data$mic <- gsub('≤', '', full_data$mic)
 full_data$mic <- gsub('<=', '', full_data$mic)
 unique(full_data$mic)
-# still many alphanumeric: is convert to as.numeric and then filter out NAs this should work? 
-full_data$mic <- as.numeric(full_data$mic)
+# still many alphanumeric: as convert to as.numeric and then filter out NAs this should work? 
+suppressWarnings(full_data$mic <- as.numeric(full_data$mic))
+# suppressing warning as expect NAs!
 full_data_cl <- full_data %>% filter(!is.na(mic)) 
 100*dim(full_data_cl)[1] / dim(full_data)[1] # 45% of rows removed by filtering for numeric MIC
 
@@ -208,7 +206,7 @@ full_data <- full_data_cl
 u <- unique(full_data$organism)
 table(full_data$organism) %>% as.data.frame() %>% 
   arrange(desc(Freq)) 
-## 4 have > 1.4M. Rest <<< 750. 
+## 4 have > 1.4M. Rest <<< 750K. 
 
 
 # S. aureus
@@ -248,7 +246,7 @@ full_data <- data.table(full_data)
 # ATLAS data already in age_groups: move this over
 full_data[, age_group := age]
 # Make all ages numeric (this will make nas for atls but fine as already moved to age_group)
-full_data[, age := as.numeric(age)] 
+suppressWarnings(full_data[, age := as.numeric(age)] )
 unique(full_data$age)
 full_data[ !is.na(age), age_group := "0 to 2 Years"]
 full_data[ age > 2, age_group := "3 to 12 Years"]
@@ -276,7 +274,6 @@ full_data$source <- tolower(full_data$source)
 ### Key sources: 
 ## Urine / blood / respiratory / wound / gastro
 # Could add reproduction / head (ear / eys) / heart 
-
 
 # urine
 full_data[str_which(full_data$source, "urine"),"key_source"] <- "urine"
@@ -349,14 +346,12 @@ full_data[antibiotic == "trimethoprim_sulfa", antibiotic := "trimethoprim sulfa"
 full_data[antibiotic == "trimethoprim-sulfamethoxazole", antibiotic := "trimethoprim sulfa"]
 full_data[antibiotic == "trimethoprim/ sulfamethoxazole", antibiotic := "trimethoprim sulfa"]
 
-# other ones I'm not sure about: "dha", "cmy11", "actmir", but they're only 3,24 and 3 of them for non-standard bugs, so fine to ignore? GK: yup ignore
-
 ### Focus
 dim(full_data)
 dim(full_data %>% filter(!organism_clean == ""))
 
 # add income groups (world bank) and who regions
-# NOTE: venezuela is unclassified on income group! Have asssigned umic
+# NOTE: venezuela is unclassified on income group, have asssigned umic
 income_grps <- as.data.table(read_csv("income.csv"))
 who_regions <- as.data.table(read_csv("who-regions.csv"))
 # match into full data
